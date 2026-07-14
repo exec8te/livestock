@@ -36,4 +36,15 @@ public class Role {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    // PrePersist and PreUpdate are used to set the creation and update date automatically
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }
