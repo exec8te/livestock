@@ -33,6 +33,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
+    @ExceptionHandler(RoleAlreadyExistsException.class)
+    public ResponseEntity<ErrorEntity> RoleAlreadyExistsHandler(RoleAlreadyExistsException exception) {
+        ErrorEntity error = ErrorEntity.builder()
+                .timeStamp(LocalDateTime.now())
+                .message(exception.getMessage())
+                .httpStatus(HttpStatus.CONFLICT.value())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorEntity> badRequestHandler(BadRequestException exception) {
         ErrorEntity error = ErrorEntity.builder()
