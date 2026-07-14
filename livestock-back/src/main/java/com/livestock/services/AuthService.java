@@ -1,34 +1,38 @@
 package com.livestock.services;
 
-import com.livestock.exceptions.BadRequestException;
-import com.livestock.mappers.UserMapper;
-import com.livestock.models.dtos.user.UserAuthDto;
-import com.livestock.models.dtos.user.UserResponseDto;
-import com.livestock.models.entities.User;
-import com.livestock.repositories.UserRepository;
+import com.livestock.mappers.LoginMapper;
+import com.livestock.models.dtos.login.LoginRequestDto;
+import com.livestock.models.dtos.login.LoginResponseDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final UserMapper userMapper;
 
-    public UserResponseDto login(UserAuthDto authDto) {
-        String email = authDto.getEmail();
-        String rawPassword = authDto.getPasswordClear();
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
+    private final LoginMapper loginMapper;
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BadRequestException("Password or email is incorrect"));
+    public LoginResponseDto login(LoginRequestDto dto) {
 
-        boolean passwordMatches = passwordEncoder.matches(rawPassword, user.getPasswordHash());
-        if (!passwordMatches) {
-            throw new BadRequestException("Password or email is incorrect");
-        }
+        Authentication authentication =
+                authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(
+                                dto.getEmail(),
+                                dto.getPasswordClear()
+                        )
+                );
 
-        return userMapper.toResponseDto(user);
+        UserDetails userDetails =
+                (UserDetails) authentication.getPrincipal();
+
+        String token = jwtService.generateToken(userDetails);
+
+        return loginMapper.toResponseDto(token, jwtService.getExpirationTime());
     }
 }

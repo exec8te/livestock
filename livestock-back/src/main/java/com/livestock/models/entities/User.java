@@ -5,13 +5,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.jspecify.annotations.Nullable;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * This class represent a user.
@@ -23,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Table(name = "users")
-public class User implements UserDetails {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -59,18 +54,7 @@ public class User implements UserDetails {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-
-    @Override
-    public @Nullable String getPassword() {
-        return this.passwordHash;
-    }
-
-    @Override
-    public String getUsername() {
-        return this.email;
-    }
-
-
+    
     // PrePersist and PreUpdate are used to set the creation and update date automatically
     @PrePersist
     public void prePersist() {
@@ -81,31 +65,4 @@ public class User implements UserDetails {
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
-
 }

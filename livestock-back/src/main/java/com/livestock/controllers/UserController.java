@@ -4,6 +4,7 @@ import com.livestock.models.dtos.user.UserCreateDto;
 import com.livestock.models.dtos.user.UserPasswordUpdateDto;
 import com.livestock.models.dtos.user.UserResponseDto;
 import com.livestock.models.dtos.user.UserUpdateDto;
+import com.livestock.models.principals.UserPrincipal;
 import com.livestock.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -31,6 +33,13 @@ public class UserController {
             ) Pageable pageable) {
 
         return userService.getAll(pageable);
+    }
+
+    @GetMapping("/me")
+    public UserResponseDto getMe(
+            @AuthenticationPrincipal UserPrincipal principal) {
+
+        return userService.getUserById(principal.getId());
     }
 
     @GetMapping("/{id}")
@@ -56,16 +65,24 @@ public class UserController {
 
     @PutMapping("/{id}/password")
     public ResponseEntity<Void> updatePassword(
-            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal principal,
             @Valid @RequestBody UserPasswordUpdateDto dto) {
 
-        userService.updatePassword(id, dto);
+        userService.updatePassword(principal.getId(), dto);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id, UserResponseDto sendingUser) {
-        userService.deleteUser(id, sendingUser);
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        userService.deleteUser(
+                id,
+                principal.getId()
+        );
+
         return ResponseEntity.noContent().build();
     }
 }
