@@ -42,17 +42,19 @@ public class UserService {
                 .map(userMapper::toResponseDto);
     }
 
-    public UserResponseDto createUser(UserCreateDto userDto) {
+    public UserResponseDto createUser(UserCreateDto dto) {
 
-        if (userRepository.existsByEmail(userDto.getEmail())) {
-            throw new EmailAlreadyExistsException(userDto.getEmail());
+        if (userRepository.existsByEmail(dto.getEmail())) {
+            throw new EmailAlreadyExistsException(dto.getEmail());
         }
 
-        User user = userMapper.toCreateEntity(userDto);
+        Role role = roleRepository.findById(dto.getRoleId())
+                .orElseThrow(() -> new RoleNotFoundException(dto.getRoleId()));
 
-        user.setPasswordHash(
-                passwordEncoder.encode(userDto.getPassword())
-        );
+        User user = userMapper.toCreateEntity(dto);
+
+        user.setRole(role);
+        user.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
 
         User savedUser = userRepository.save(user);
 

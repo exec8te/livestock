@@ -24,12 +24,11 @@ public class UserMapper {
     }
 
 
-    public User toCreateEntity(UserCreateDto userDto) {
+    public User toCreateEntity(UserCreateDto dto) {
         return User.builder()
-                .fullName(userDto.getFullName())
-                .email(userDto.getEmail())
-                .passwordHash(userDto.getPassword())
-                .role(userDto.getRole())
+                .fullName(dto.getFullName())
+                .email(dto.getEmail())
+                .passwordHash(dto.getPassword())
                 .build();
     }
 
