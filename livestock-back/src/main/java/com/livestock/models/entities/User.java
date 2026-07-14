@@ -10,15 +10,7 @@ import java.time.LocalDateTime;
 
 /**
  * This class represent a user.
- * A user have :
- * - id
- * - full_name
- * - email
- * - password_hash
- * - role_id
- * - last_login_at
- * - created_at
- * - updated_at
+ * A user have : id, fullName, email, passwordHash, role, lastLoginAt, createdAt, updatedAt
  */
 @Entity
 @Data
@@ -62,6 +54,7 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    // PrePersist and PreUpdate are used to set the creation and update date automatically
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();

@@ -8,8 +8,8 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * This class represent a user response.
- * A user response have : id, fullName, email, roleId, lastLoginAt, createdAt, updatedAt
+ * This class represent a dto of user response.
+ * A user response require : id, fullName, email, roleId, lastLoginAt, createdAt, updatedAt
  */
 @Data
 @Builder
