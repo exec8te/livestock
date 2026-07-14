@@ -17,18 +17,16 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
-    public UserResponseDto login(UserAuthDto dto) {
-        if (!userRepository.existsByEmail(dto.getEmail())) {
-            throw new BadRequestException("Password or email or incorrect");
-        }
+    public UserResponseDto login(UserAuthDto authDto) {
+        String email = authDto.getEmail();
+        String rawPassword = authDto.getPasswordClear();
 
-        User user = userRepository.findByEmail(dto.getEmail());
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BadRequestException("Password or email is incorrect"));
 
-        if (passwordEncoder.matches(
-                dto.getPasswordClear(),
-                user.getPasswordHash()
-        )) {
-            throw new BadRequestException("Password or email or incorrect");
+        boolean passwordMatches = passwordEncoder.matches(rawPassword, user.getPasswordHash());
+        if (!passwordMatches) {
+            throw new BadRequestException("Password or email is incorrect");
         }
 
         return userMapper.toResponseDto(user);
