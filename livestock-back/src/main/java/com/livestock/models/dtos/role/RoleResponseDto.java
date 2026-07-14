@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 /**
  * This class represent a dto of role response.
- * The dto require : id, name, createdAt, updatedAt
+ * The dto have : id, name, createdAt, updatedAt
  */
 @Data
 @Builder

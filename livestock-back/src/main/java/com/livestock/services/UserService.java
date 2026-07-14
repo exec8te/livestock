@@ -17,6 +17,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -112,18 +113,15 @@ public class UserService {
         userRepository.save(user);
     }
 
-    @Transactional
-    public void deleteUser(Long userId, UserResponseDto sendingUser) {
-        if (sendingUser.getId().equals(userId))
-            throw new BadRequestException("Sending user can't delete himself");
+    public void deleteUser(Long idToDelete, Long currentUserId) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+        if (idToDelete.equals(currentUserId)) {
+            throw new AccessDeniedException(
+                    "Cannot delete yourself"
+            );
+        }
 
-        userRepository.findById(sendingUser.getId())
-                .orElseThrow(() -> new UserNotFoundException(userId));
-
-        userRepository.delete(user);
+        userRepository.deleteById(idToDelete);
     }
 
 

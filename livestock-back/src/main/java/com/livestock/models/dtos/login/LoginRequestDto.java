@@ -1,4 +1,4 @@
-package com.livestock.models.dtos.user;
+package com.livestock.models.dtos.login;
 
 
 import jakarta.validation.constraints.Email;
@@ -16,7 +16,7 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
-public class UserAuthDto {
+public class LoginRequestDto {
     @NotBlank
     @Email
     private String email;
