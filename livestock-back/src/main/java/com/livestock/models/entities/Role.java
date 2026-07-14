@@ -8,6 +8,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
+/**
+ * This class represent a role.
+ * A role have : id, name
+ */
 @Entity
 @Data
 @AllArgsConstructor
@@ -24,4 +30,10 @@ public class Role {
     @NotBlank
     @Size(min = 3, max = 100)
     private String name;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }
