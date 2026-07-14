@@ -1,9 +1,12 @@
 package com.livestock.exceptions;
 
-import com.livestock.models.entities.ErrorEntity;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -11,69 +14,78 @@ import java.time.LocalDateTime;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorEntity> UserNotFoundHandler(UserNotFoundException exception) {
-        ErrorEntity error = ErrorEntity.builder()
-                .timeStamp(LocalDateTime.now())
-                .message(exception.getMessage())
-                .httpStatus(HttpStatus.NOT_FOUND.value())
-                .build();
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-    }
 
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<ErrorEntity> EmailAlreadyExistsHandler(EmailAlreadyExistsException exception) {
-        ErrorEntity error = ErrorEntity.builder()
-                .timeStamp(LocalDateTime.now())
-                .message(exception.getMessage())
-                .httpStatus(HttpStatus.CONFLICT.value())
-                .build();
+    @ExceptionHandler(Exception.class)
+    public ProblemDetail handleException(Exception exception) {
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
-    }
+        HttpStatus status;
+        String message;
 
-    @ExceptionHandler(RoleAlreadyExistsException.class)
-    public ResponseEntity<ErrorEntity> RoleAlreadyExistsHandler(RoleAlreadyExistsException exception) {
-        ErrorEntity error = ErrorEntity.builder()
-                .timeStamp(LocalDateTime.now())
-                .message(exception.getMessage())
-                .httpStatus(HttpStatus.CONFLICT.value())
-                .build();
+        switch (exception) {
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
-    }
+            case UserNotFoundException e -> {
+                status = HttpStatus.NOT_FOUND;
+                message = e.getMessage();
+            }
 
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ErrorEntity> badRequestHandler(BadRequestException exception) {
-        ErrorEntity error = ErrorEntity.builder()
-                .timeStamp(LocalDateTime.now())
-                .message(exception.getMessage())
-                .httpStatus(HttpStatus.BAD_REQUEST.value())
-                .build();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-    }
+            case EmailAlreadyExistsException e -> {
+                status = HttpStatus.CONFLICT;
+                message = e.getMessage();
+            }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ErrorEntity> runtimeExceptionHandler(RuntimeException exception) {
-        ErrorEntity error = ErrorEntity.builder()
-                .timeStamp(LocalDateTime.now())
-                .message(exception.getMessage())
-                .httpStatus(HttpStatus.FORBIDDEN.value())
-                .build();
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
-    }
+            case RoleAlreadyExistsException e -> {
+                status = HttpStatus.CONFLICT;
+                message = e.getMessage();
+            }
 
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorEntity> httpMessageNotReadableHandler(
-            HttpMessageNotReadableException exception) {
+            case BadRequestException e -> {
+                status = HttpStatus.BAD_REQUEST;
+                message = e.getMessage();
+            }
 
-        ErrorEntity error = ErrorEntity.builder()
-                .timeStamp(LocalDateTime.now())
-                .message("Invalid request body")
-                .httpStatus(HttpStatus.BAD_REQUEST.value())
-                .build();
+            case HttpMessageNotReadableException e -> {
+                status = HttpStatus.BAD_REQUEST;
+                message = "Invalid request body";
+            }
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            case BadCredentialsException e -> {
+                status = HttpStatus.UNAUTHORIZED;
+                message = "Username or password is incorrect";
+            }
+
+            case AccessDeniedException e -> {
+                status = HttpStatus.FORBIDDEN;
+                message = "You are not authorized to access this resource";
+            }
+
+            case SignatureException e -> {
+                status = HttpStatus.FORBIDDEN;
+                message = "JWT signature is invalid";
+            }
+
+            case ExpiredJwtException e -> {
+                status = HttpStatus.FORBIDDEN;
+                message = "JWT token has expired";
+            }
+
+            default -> {
+                status = HttpStatus.INTERNAL_SERVER_ERROR;
+                message = "Internal server error";
+            }
+        }
+
+        ProblemDetail problemDetail =
+                ProblemDetail.forStatusAndDetail(
+                        status,
+                        message
+                );
+
+        problemDetail.setProperty(
+                "timestamp",
+                LocalDateTime.now()
+        );
+
+        return problemDetail;
     }
 }
