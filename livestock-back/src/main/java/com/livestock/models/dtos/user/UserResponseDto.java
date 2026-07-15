@@ -1,6 +1,5 @@
 package com.livestock.models.dtos.user;
 
-import com.livestock.models.entities.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +17,7 @@ public class UserResponseDto {
     private Long id;
     private String fullName;
     private String email;
-    private Role role;
+    private String role;
     private LocalDateTime lastLoginAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

@@ -2,14 +2,12 @@ package com.livestock.services;
 
 import com.livestock.exceptions.BadRequestException;
 import com.livestock.exceptions.EmailAlreadyExistsException;
-import com.livestock.exceptions.RoleNotFoundException;
 import com.livestock.exceptions.UserNotFoundException;
 import com.livestock.mappers.UserMapper;
 import com.livestock.models.dtos.login.RegisterRequestDto;
 import com.livestock.models.dtos.user.UserPasswordUpdateDto;
 import com.livestock.models.dtos.user.UserResponseDto;
 import com.livestock.models.dtos.user.UserUpdateDto;
-import com.livestock.models.entities.Role;
 import com.livestock.models.entities.User;
 import com.livestock.repositories.RoleRepository;
 import com.livestock.repositories.UserRepository;
@@ -66,11 +64,6 @@ public class UserService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
-
-        Role role = roleRepository.findById(dto.getRoleId())
-                .orElseThrow(() -> new RoleNotFoundException(dto.getRoleId()));
-
-        user.setRole(role);
 
         if (!user.getEmail().equals(dto.getEmail())
                 && userRepository.existsByEmail(dto.getEmail())) {
