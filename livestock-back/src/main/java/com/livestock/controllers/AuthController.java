@@ -2,6 +2,7 @@ package com.livestock.controllers;
 
 import com.livestock.models.dtos.login.LoginRequestDto;
 import com.livestock.models.dtos.login.LoginResponseDto;
+import com.livestock.models.dtos.login.RegisterRequestDto;
 import com.livestock.services.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,15 @@ public class AuthController {
     ) {
         return ResponseEntity.ok(
                 authService.login(dto)
+        );
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<LoginResponseDto> register(
+            @Valid @RequestBody RegisterRequestDto dto
+    ) {
+        return ResponseEntity.ok(
+                authService.register(dto)
         );
     }
 }

@@ -5,7 +5,7 @@ import com.livestock.exceptions.EmailAlreadyExistsException;
 import com.livestock.exceptions.RoleNotFoundException;
 import com.livestock.exceptions.UserNotFoundException;
 import com.livestock.mappers.UserMapper;
-import com.livestock.models.dtos.user.UserCreateDto;
+import com.livestock.models.dtos.login.RegisterRequestDto;
 import com.livestock.models.dtos.user.UserPasswordUpdateDto;
 import com.livestock.models.dtos.user.UserResponseDto;
 import com.livestock.models.dtos.user.UserUpdateDto;
@@ -43,23 +43,22 @@ public class UserService {
                 .map(userMapper::toResponseDto);
     }
 
-    public UserResponseDto createUser(UserCreateDto dto) {
+    public UserResponseDto createUser(RegisterRequestDto dto) {
 
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new EmailAlreadyExistsException(dto.getEmail());
         }
 
-        Role role = roleRepository.findById(dto.getRoleId())
-                .orElseThrow(() -> new RoleNotFoundException(dto.getRoleId()));
-
         User user = userMapper.toCreateEntity(dto);
 
-        user.setRole(role);
         user.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
 
         User savedUser = userRepository.save(user);
 
-        return userMapper.toResponseDto(savedUser);
+        User newUser = userRepository.findById(savedUser.getId())
+                .orElseThrow(() -> new UserNotFoundException(savedUser.getId()));
+
+        return userMapper.toResponseDto(newUser);
     }
 
     @Transactional
@@ -113,12 +112,17 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional
     public void deleteUser(Long idToDelete, Long currentUserId) {
 
         if (idToDelete.equals(currentUserId)) {
             throw new AccessDeniedException(
                     "Cannot delete yourself"
             );
+        }
+
+        if (!userRepository.existsById(idToDelete)) {
+            throw new UserNotFoundException(idToDelete);
         }
 
         userRepository.deleteById(idToDelete);

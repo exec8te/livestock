@@ -1,8 +1,7 @@
-package com.livestock.models.dtos.user;
+package com.livestock.models.dtos.login;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserCreateDto {
+public class RegisterRequestDto {
 
     @NotBlank
     private String fullName;
@@ -27,8 +26,5 @@ public class UserCreateDto {
 
     @NotBlank
     private String password;
-
-    @NotNull
-    private Long roleId;
 }
 
