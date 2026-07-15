@@ -6,7 +6,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
 
 public class UserPrincipal implements UserDetails {
 
@@ -15,20 +14,25 @@ public class UserPrincipal implements UserDetails {
     private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
 
-
     public UserPrincipal(User user) {
 
         this.id = user.getId();
         this.email = user.getEmail();
         this.password = user.getPasswordHash();
 
-        this.authorities = List.of(
-                new SimpleGrantedAuthority(
-                        "ROLE_" + user.getRole().getName()
-                )
-        );
+        this.authorities = user.getRole()
+                .getPermissions()
+                .stream()
+                .map(permission -> new SimpleGrantedAuthority(
+                        permission.getResource() + "_" + permission.getAction()
+                ))
+                .toList();
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return authorities;
+    }
 
     public Long getId() {
         return id;
@@ -44,11 +48,5 @@ public class UserPrincipal implements UserDetails {
     @Override
     public String getPassword() {
         return password;
-    }
-
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
     }
 }
