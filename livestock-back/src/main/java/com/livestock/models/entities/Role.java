@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 /**
  * This class represent a role.
@@ -36,6 +37,15 @@ public class Role {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    // Link with permissions
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "role_permissions",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name = "permission_id")
+    )
+    private Set<Permission> permissions;
 
     // PrePersist and PreUpdate are used to set the creation and update date automatically
     @PrePersist
