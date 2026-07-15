@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +25,7 @@ public class UserController {
 
     private final UserService userService;
 
+    @PreAuthorize("hasAuthority('USER_READ_ALL')")
     @GetMapping
     public Page<UserResponseDto> getAll(
             @PageableDefault(
@@ -35,14 +37,17 @@ public class UserController {
         return userService.getAll(pageable);
     }
 
+    @PreAuthorize("hasAuthority('USER_CREATE')")
     @PostMapping
     public ResponseEntity<UserResponseDto> create(
             @Valid @RequestBody RegisterRequestDto dto) {
 
         UserResponseDto user = userService.createUser(dto);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
+    @PreAuthorize("hasAuthority('USER_READ_SELF') or hasAuthority('USER_READ_ALL')")
     @GetMapping("/me")
     public UserResponseDto getMe(
             @AuthenticationPrincipal UserPrincipal principal) {
@@ -50,28 +55,71 @@ public class UserController {
         return userService.getUserById(principal.getId());
     }
 
+    @PreAuthorize("hasAuthority('USER_UPDATE_SELF')")
+    @PutMapping("/me")
+    public ResponseEntity<UserResponseDto> updateMe(
+            @Valid @RequestBody UserUpdateDto dto,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        UserResponseDto user = userService.updateUser(
+                principal.getId(),
+                dto
+        );
+
+        return ResponseEntity.status(HttpStatus.OK).body(user);
+    }
+
+    @PreAuthorize("hasAuthority('USER_UPDATE_SELF')")
+    @PutMapping("/me/password")
+    public ResponseEntity<Void> updateMePassword(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody UserPasswordUpdateDto dto) {
+
+        userService.updatePassword(
+                principal.getId(),
+                dto
+        );
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PreAuthorize("hasAuthority('USER_READ_ALL')")
     @GetMapping("/{id}")
     public UserResponseDto getById(@PathVariable Long id) {
+
         return userService.getUserById(id);
     }
 
+    @PreAuthorize("hasAuthority('USER_UPDATE_ALL')")
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDto> update(
             @PathVariable Long id,
             @Valid @RequestBody UserUpdateDto dto) {
-        UserResponseDto user = userService.updateUser(id, dto);
+
+        UserResponseDto user = userService.updateUser(
+                id,
+                dto
+        );
+
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
+    @PreAuthorize("hasAuthority('USER_UPDATE_ALL')")
     @PutMapping("/{id}/password")
     public ResponseEntity<Void> updatePassword(
-            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable Long id,
             @Valid @RequestBody UserPasswordUpdateDto dto) {
 
-        userService.updatePassword(principal.getId(), dto);
+        userService.updatePassword(
+                id,
+                dto
+        );
+
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasAuthority('USER_DELETE_ALL')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(
             @PathVariable Long id,
