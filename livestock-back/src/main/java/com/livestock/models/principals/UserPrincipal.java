@@ -1,5 +1,6 @@
 package com.livestock.models.principals;
 
+import com.livestock.models.entities.Role;
 import com.livestock.models.entities.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -7,19 +8,25 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
+/**
+ * This class represent the security context of the user.
+ * The security context have : id, email, passwordHash, role, authorities
+ * It is linked to the User entity and spring security.
+ */
 public class UserPrincipal implements UserDetails {
 
     private final Long id;
     private final String email;
-    private final String password;
+    private final String passwordHash;
+    private final Role role;
     private final Collection<? extends GrantedAuthority> authorities;
 
     public UserPrincipal(User user) {
 
         this.id = user.getId();
         this.email = user.getEmail();
-        this.password = user.getPasswordHash();
-
+        this.passwordHash = user.getPasswordHash();
+        this.role = user.getRole();
         this.authorities = user.getRole()
                 .getPermissions()
                 .stream()
@@ -47,6 +54,6 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public String getPassword() {
-        return password;
+        return passwordHash;
     }
 }
