@@ -16,7 +16,7 @@ public class UserMapper {
                 .id(user.getId())
                 .fullName(user.getFullName())
                 .email(user.getEmail())
-                .role(user.getRole())
+                .role(user.getRole().getName())
                 .lastLoginAt(user.getLastLoginAt())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
@@ -45,8 +45,7 @@ public class UserMapper {
     public boolean hasChanges(UserUpdateDto dto, User user) {
 
         return !Objects.equals(user.getEmail(), dto.getEmail())
-                || !Objects.equals(user.getFullName(), dto.getFullName())
-                || !Objects.equals(user.getRole().getId(), dto.getRoleId());
+                || !Objects.equals(user.getFullName(), dto.getFullName());
     }
 }
 
