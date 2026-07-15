@@ -32,17 +32,17 @@ public class RoleController {
         return roleService.getAll(pageable);
     }
 
-    @GetMapping("/{id}")
-    public RoleResponseDto getById(@PathVariable Long id) {
-        return roleService.getRoleById(id);
-    }
-
     @PostMapping
     public ResponseEntity<RoleResponseDto> create(
             @Valid @RequestBody RoleCreateDto dto) {
 
         RoleResponseDto role = roleService.createRole(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(role);
+    }
+
+    @GetMapping("/{id}")
+    public RoleResponseDto getById(@PathVariable Long id) {
+        return roleService.getRoleById(id);
     }
 
     @PutMapping("/{id}")

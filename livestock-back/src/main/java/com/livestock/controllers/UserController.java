@@ -1,6 +1,6 @@
 package com.livestock.controllers;
 
-import com.livestock.models.dtos.user.UserCreateDto;
+import com.livestock.models.dtos.login.RegisterRequestDto;
 import com.livestock.models.dtos.user.UserPasswordUpdateDto;
 import com.livestock.models.dtos.user.UserResponseDto;
 import com.livestock.models.dtos.user.UserUpdateDto;
@@ -35,6 +35,14 @@ public class UserController {
         return userService.getAll(pageable);
     }
 
+    @PostMapping
+    public ResponseEntity<UserResponseDto> create(
+            @Valid @RequestBody RegisterRequestDto dto) {
+
+        UserResponseDto user = userService.createUser(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+    }
+
     @GetMapping("/me")
     public UserResponseDto getMe(
             @AuthenticationPrincipal UserPrincipal principal) {
@@ -45,14 +53,6 @@ public class UserController {
     @GetMapping("/{id}")
     public UserResponseDto getById(@PathVariable Long id) {
         return userService.getUserById(id);
-    }
-
-    @PostMapping
-    public ResponseEntity<UserResponseDto> create(
-            @Valid @RequestBody UserCreateDto dto) {
-
-        UserResponseDto user = userService.createUser(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
     @PutMapping("/{id}")

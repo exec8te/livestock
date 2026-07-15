@@ -1,6 +1,6 @@
 package com.livestock.mappers;
 
-import com.livestock.models.dtos.user.UserCreateDto;
+import com.livestock.models.dtos.login.RegisterRequestDto;
 import com.livestock.models.dtos.user.UserResponseDto;
 import com.livestock.models.dtos.user.UserUpdateDto;
 import com.livestock.models.entities.User;
@@ -24,7 +24,7 @@ public class UserMapper {
     }
 
 
-    public User toCreateEntity(UserCreateDto dto) {
+    public User toCreateEntity(RegisterRequestDto dto) {
         return User.builder()
                 .fullName(dto.getFullName())
                 .email(dto.getEmail())
