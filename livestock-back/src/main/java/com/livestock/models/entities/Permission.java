@@ -30,8 +30,8 @@ public class Permission {
     @Size(min = 3, max = 100)
     private String resource;
 
-    @Column(name = "action", length = 6, nullable = false)
+    @Column(name = "action", nullable = false)
     @NotBlank
-    @Size(min = 6, max = 6)
+    @Size(min = 4, max = 6)
     private String action;
 }
