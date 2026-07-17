@@ -9,10 +9,14 @@ import com.livestock.models.dtos.user.UserPasswordUpdateDto;
 import com.livestock.models.dtos.user.UserResponseDto;
 import com.livestock.models.dtos.user.UserUpdateDto;
 import com.livestock.models.entities.User;
-import com.livestock.repositories.RoleRepository;
+import com.livestock.models.principals.UserPrincipal;
 import com.livestock.repositories.UserRepository;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
@@ -21,12 +25,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
-    private final RoleRepository roleRepository;
-
+    private final RoleService roleService;
+    
     public UserResponseDto getUserById(Long userId) {
 
         User user = userRepository.findById(userId)
@@ -41,7 +46,7 @@ public class UserService {
                 .map(userMapper::toResponseDto);
     }
 
-    public UserResponseDto createUser(RegisterRequestDto dto) {
+    public UserResponseDto createUser(RegisterRequestDto dto, UserPrincipal principal) {
 
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new EmailAlreadyExistsException(dto.getEmail());
@@ -55,6 +60,21 @@ public class UserService {
 
         User newUser = userRepository.findById(savedUser.getId())
                 .orElseThrow(() -> new UserNotFoundException(savedUser.getId()));
+
+
+        if (principal != null) {
+            log.info(
+                    "event=USER_CREATED actorType=USER actorId={} actorAuthorities={} targetType=USER targetId={} status=SUCCESS",
+                    principal.getId(),
+                    principal.getAuthorities(),
+                    newUser.getId()
+            );
+        } else {
+            log.info(
+                    "event=USER_CREATED actorType=SYSTEM actorId=PUBLIC_REGISTRATION targetType=USER targetId={} status=SUCCESS",
+                    newUser.getId()
+            );
+        }
 
         return userMapper.toResponseDto(newUser);
     }
@@ -103,15 +123,17 @@ public class UserService {
         user.setPasswordHash(passwordEncoder.encode(dto.getNewPassword()));
 
         userRepository.save(user);
+
+        log.info("User {} updated his password", user.getId());
     }
 
     @Transactional
-    public void deleteUser(Long idToDelete, Long currentUserId) {
+    public void deleteUser(Long idToDelete, UserPrincipal principal) {
 
-        if (idToDelete.equals(currentUserId)) {
-            throw new AccessDeniedException(
-                    "Cannot delete yourself"
-            );
+        Long actorId = principal.getId();
+
+        if (idToDelete.equals(actorId)) {
+            throw new AccessDeniedException("Cannot delete yourself");
         }
 
         if (!userRepository.existsById(idToDelete)) {
@@ -119,7 +141,43 @@ public class UserService {
         }
 
         userRepository.deleteById(idToDelete);
+
+        log.info(
+                "event=USER_DELETED actorId={} targetId={} status=SUCCESS",
+                actorId,
+                idToDelete
+        );
     }
 
+    public boolean existsByEmail(@NotBlank @Valid @Email String email) {
+        return userRepository.existsByEmail(email);
+    }
 
+    public User register(RegisterRequestDto dto) {
+
+        if (userRepository.existsByEmail(dto.getEmail())) {
+            throw new EmailAlreadyExistsException(dto.getEmail());
+        }
+
+        User user = userMapper.toCreateEntity(dto);
+
+        user.setPasswordHash(
+                passwordEncoder.encode(dto.getPassword())
+        );
+
+        user.setRole(roleService.getDefaultRole());
+
+        User savedUser = userRepository.save(user);
+
+        log.info(
+                "event={} actorType={} actorId={} targetType={} targetId={} status=SUCCESS",
+                "USER_REGISTERED",
+                "SYSTEM",
+                "PUBLIC_REGISTRATION",
+                "USER",
+                savedUser.getId()
+        );
+
+        return savedUser;
+    }
 }

@@ -24,5 +24,5 @@ public class LoginRequestDto {
     @NotNull
     @NotBlank
     @Size(min = 12, max = 255, message = "Password must be between 12 and 255 characters")
-    private String passwordClear;
+    private String password; // password clear
 }

@@ -15,11 +15,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Collection;
 
 @RestController
 @RequestMapping("/users")
@@ -43,9 +40,10 @@ public class UserController {
     @PreAuthorize("hasAuthority('USER_CREATE')")
     @PostMapping
     public ResponseEntity<UserResponseDto> create(
-            @Valid @RequestBody RegisterRequestDto dto) {
+            @Valid @RequestBody RegisterRequestDto dto,
+            @AuthenticationPrincipal UserPrincipal principal) {
 
-        UserResponseDto user = userService.createUser(dto);
+        UserResponseDto user = userService.createUser(dto, principal);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
@@ -58,7 +56,7 @@ public class UserController {
         return userService.getUserById(principal.getId());
     }
 
-    @PreAuthorize("hasAuthority('USER_UPDATE_SELF')")
+    @PreAuthorize("hasAuthority('USER_UPDATE_SELF') or hasAuthority('USER_READ_ALL')")
     @PutMapping("/me")
     public ResponseEntity<UserResponseDto> updateMe(
             @Valid @RequestBody UserUpdateDto dto,
@@ -122,25 +120,15 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PreAuthorize("hasAuthority('USER_DELETE_ALL')")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('USER_DELETE_ALL')")
     public ResponseEntity<Void> deleteUser(
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
 
-        userService.deleteUser(
-                id,
-                principal.getId()
-        );
+        userService.deleteUser(id, principal);
 
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/debug")
-    public Collection<? extends GrantedAuthority> debug(
-            @AuthenticationPrincipal UserPrincipal principal
-    ) {
-        return principal.getAuthorities();
     }
 }
