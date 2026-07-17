@@ -1,6 +1,6 @@
 package com.livestock.config;
 
-import com.livestock.services.UserPrincipalService;
+import com.livestock.services.authorization.UserPrincipalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
