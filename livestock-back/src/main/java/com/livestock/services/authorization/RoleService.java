@@ -9,10 +9,12 @@ import com.livestock.models.dtos.authorization.role.RoleResponseDto;
 import com.livestock.models.dtos.authorization.role.RoleUpdateDto;
 import com.livestock.models.entities.authorization.Permission;
 import com.livestock.models.entities.authorization.Role;
+import com.livestock.models.principals.authorization.UserPrincipal;
 import com.livestock.repositories.authorization.PermissionRepository;
 import com.livestock.repositories.authorization.RoleRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RoleService {
     private final RoleRepository roleRepository;
     private final RoleMapper roleMapper;
@@ -31,6 +34,14 @@ public class RoleService {
 
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new RoleNotFoundException(roleId));
+
+        return roleMapper.toResponseDto(role);
+    }
+
+    public RoleResponseDto getRoleByName(String roleName) {
+
+        Role role = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new RoleNotFoundException(roleName));
 
         return roleMapper.toResponseDto(role);
     }
@@ -82,17 +93,32 @@ public class RoleService {
     }
 
     @Transactional
-    public void deleteRole(Long roleId) {
+    public void deleteRole(Long idToDelete, UserPrincipal principal) {
 
-        Role role = roleRepository.findById(roleId)
-                .orElseThrow(() -> new RoleNotFoundException(roleId));
+        Role role = roleRepository.findById(idToDelete)
+                .orElseThrow(() -> new RoleNotFoundException(idToDelete));
 
         roleRepository.delete(role);
+
+        log.info(
+                "event={} actorType={} actorId={} targetType={} targetId={} status=SUCCESS",
+                "USER_DELETED",
+                principal.getAuthorities(),
+                principal.getId(),
+                "ROLE",
+                idToDelete
+        );
     }
 
     public Role getDefaultRole() {
         return roleRepository.findByName("USER")
                 .orElseThrow(() -> new RoleNotFoundException("USER"));
+    }
+
+    public Role findEntityById(Long id) {
+
+        return roleRepository.findById(id)
+                .orElseThrow(() -> new RoleNotFoundException(id));
     }
 
 

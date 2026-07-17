@@ -3,6 +3,7 @@ package com.livestock.controllers.authorization;
 import com.livestock.models.dtos.authorization.role.RoleCreateDto;
 import com.livestock.models.dtos.authorization.role.RoleResponseDto;
 import com.livestock.models.dtos.authorization.role.RoleUpdateDto;
+import com.livestock.models.principals.authorization.UserPrincipal;
 import com.livestock.services.authorization.RoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -54,14 +56,18 @@ public class RoleController {
     public ResponseEntity<RoleResponseDto> update(
             @PathVariable Long id,
             @Valid @RequestBody RoleUpdateDto dto) {
+
         RoleResponseDto role = roleService.updateRole(id, dto);
         return ResponseEntity.status(HttpStatus.OK).body(role);
     }
 
     @PreAuthorize("hasAuthority('ROLE_DELETE_ALL')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        roleService.deleteRole(id);
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        
+        roleService.deleteRole(id, principal);
         return ResponseEntity.noContent().build();
     }
 }
