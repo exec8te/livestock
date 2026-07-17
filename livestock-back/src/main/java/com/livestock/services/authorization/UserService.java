@@ -7,7 +7,9 @@ import com.livestock.mappers.authorization.UserMapper;
 import com.livestock.models.dtos.authorization.login.RegisterRequestDto;
 import com.livestock.models.dtos.authorization.user.UserPasswordUpdateDto;
 import com.livestock.models.dtos.authorization.user.UserResponseDto;
+import com.livestock.models.dtos.authorization.user.UserUpdateAdminDto;
 import com.livestock.models.dtos.authorization.user.UserUpdateDto;
+import com.livestock.models.entities.authorization.Role;
 import com.livestock.models.entities.authorization.User;
 import com.livestock.models.principals.authorization.UserPrincipal;
 import com.livestock.repositories.authorization.UserRepository;
@@ -119,12 +121,9 @@ public class UserService {
             throw new BadRequestException("New password can't be the same as old");
         }
 
-
         user.setPasswordHash(passwordEncoder.encode(dto.getNewPassword()));
 
         userRepository.save(user);
-
-        log.info("User {} updated his password", user.getId());
     }
 
     @Transactional
@@ -143,8 +142,11 @@ public class UserService {
         userRepository.deleteById(idToDelete);
 
         log.info(
-                "event=USER_DELETED actorId={} targetId={} status=SUCCESS",
-                actorId,
+                "event={} actorType={} actorId={} targetType={} targetId={} status=SUCCESS",
+                "USER_DELETED",
+                principal.getAuthorities(),
+                principal.getId(),
+                "USER",
                 idToDelete
         );
     }
@@ -179,5 +181,49 @@ public class UserService {
         );
 
         return savedUser;
+    }
+
+    @Transactional
+    public UserResponseDto updateUserByAdmin(
+            Long userId,
+            UserUpdateAdminDto dto,
+            UserPrincipal principal
+    ) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+
+        if (!user.getEmail().equals(dto.getEmail())
+                && userRepository.existsByEmail(dto.getEmail())) {
+
+            throw new EmailAlreadyExistsException(dto.getEmail());
+        }
+
+
+        Role role = roleService.findEntityById(dto.getRoleId());
+
+
+        if (!userMapper.hasChanges(dto, user)) {
+            throw new BadRequestException("No changes were made");
+        }
+
+
+        userMapper.updateByAdminEntity(dto, user);
+
+        user.setRole(role);
+
+
+        log.info(
+                "event={} actorType={} actorId={} targetType={} targetId={} status=SUCCESS",
+                "USER_UPDATED",
+                principal.getAuthorities(),
+                principal.getId(),
+                "USER",
+                user.getId()
+        );
+
+
+        return userMapper.toResponseDto(user);
     }
 }

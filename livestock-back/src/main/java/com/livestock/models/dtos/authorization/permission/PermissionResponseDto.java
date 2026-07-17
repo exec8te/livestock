@@ -13,5 +13,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class PermissionResponseDto {
     private String resource;
-    private String action;
+    private PermissionAction action;
 }

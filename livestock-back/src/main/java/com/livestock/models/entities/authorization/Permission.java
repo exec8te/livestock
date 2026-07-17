@@ -1,5 +1,6 @@
 package com.livestock.models.entities.authorization;
 
+import com.livestock.models.dtos.authorization.permission.PermissionAction;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -26,12 +27,11 @@ public class Permission {
     private Long id;
 
     @Column(name = "resource", length = 100, nullable = false)
-    @NotBlank
+    @NotBlank(message = "Resource must not be blank")
     @Size(min = 3, max = 100, message = "Resource must contain between 3 and 100 characters")
     private String resource;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "action", nullable = false)
-    @NotBlank
-    @Size(min = 4, max = 100, message = "Action must contain between 4 and 100 characters")
-    private String action;
+    private PermissionAction action;
 }

@@ -1,5 +1,6 @@
 package com.livestock.repositories.authorization;
 
+import com.livestock.models.dtos.authorization.permission.PermissionAction;
 import com.livestock.models.entities.authorization.Permission;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,5 +12,5 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
 
     Page<Permission> findAll(Pageable pageable);
 
-    boolean existsByResourceAndAction(String resource, String action);
+    boolean existsByResourceAndAction(String resource, PermissionAction action);
 }

@@ -3,6 +3,7 @@ package com.livestock.controllers.authorization;
 import com.livestock.models.dtos.authorization.login.RegisterRequestDto;
 import com.livestock.models.dtos.authorization.user.UserPasswordUpdateDto;
 import com.livestock.models.dtos.authorization.user.UserResponseDto;
+import com.livestock.models.dtos.authorization.user.UserUpdateAdminDto;
 import com.livestock.models.dtos.authorization.user.UserUpdateDto;
 import com.livestock.models.principals.authorization.UserPrincipal;
 import com.livestock.services.authorization.UserService;
@@ -74,8 +75,8 @@ public class UserController {
     @PreAuthorize("hasAuthority('USER_UPDATE_SELF')")
     @PutMapping("/me/password")
     public ResponseEntity<Void> updateMePassword(
-            @AuthenticationPrincipal UserPrincipal principal,
-            @Valid @RequestBody UserPasswordUpdateDto dto) {
+            @Valid @RequestBody UserPasswordUpdateDto dto,
+            @AuthenticationPrincipal UserPrincipal principal) {
 
         userService.updatePassword(
                 principal.getId(),
@@ -96,11 +97,13 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDto> update(
             @PathVariable Long id,
-            @Valid @RequestBody UserUpdateDto dto) {
+            @Valid @RequestBody UserUpdateAdminDto dto,
+            @AuthenticationPrincipal UserPrincipal principal) {
 
-        UserResponseDto user = userService.updateUser(
+        UserResponseDto user = userService.updateUserByAdmin(
                 id,
-                dto
+                dto,
+                principal
         );
 
         return ResponseEntity.status(HttpStatus.OK).body(user);
