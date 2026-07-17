@@ -7,21 +7,25 @@ import com.livestock.mappers.RoleMapper;
 import com.livestock.models.dtos.role.RoleCreateDto;
 import com.livestock.models.dtos.role.RoleResponseDto;
 import com.livestock.models.dtos.role.RoleUpdateDto;
+import com.livestock.models.entities.Permission;
 import com.livestock.models.entities.Role;
+import com.livestock.repositories.PermissionRepository;
 import com.livestock.repositories.RoleRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class RoleService {
     private final RoleRepository roleRepository;
     private final RoleMapper roleMapper;
-    private final PasswordEncoder passwordEncoder;
+    private final PermissionRepository permissionRepository;
 
     public RoleResponseDto getRoleById(Long roleId) {
 
@@ -56,11 +60,23 @@ public class RoleService {
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new RoleNotFoundException(roleId));
 
-        if (!roleMapper.hasChanges(dto, role)) {
+        if (!role.getName().equals(dto.getName())
+                && roleRepository.existsByName(dto.getName())) {
+            throw new RoleAlreadyExistsException(dto.getName());
+        }
+
+        List<Permission> permissions = permissionRepository.findAllById(dto.getPermissionIds());
+
+        if (permissions.size() != dto.getPermissionIds().size()) {
+            throw new BadRequestException("One or more permissions do not exist");
+        }
+
+        if (!roleMapper.hasChanges(role, dto.getName(), permissions)) {
             throw new BadRequestException("No changes were made");
         }
 
-        roleMapper.updateEntity(dto, role);
+        role.setName(dto.getName());
+        role.setPermissions(new HashSet<>(permissions));
 
         return roleMapper.toResponseDto(role);
     }

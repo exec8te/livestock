@@ -29,7 +29,7 @@ public class Role {
 
     @Column(name = "name", length = 100, nullable = false)
     @NotBlank
-    @Size(min = 3, max = 100)
+    @Size(min = 3, max = 100, message = "Name must contain between 4 and 100 characters")
     private String name;
 
     @Column(name = "created_at", nullable = false, updatable = false)

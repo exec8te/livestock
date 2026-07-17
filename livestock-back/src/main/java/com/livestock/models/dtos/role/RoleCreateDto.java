@@ -1,11 +1,14 @@
 package com.livestock.models.dtos.role;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /**
  * This class represent a dto of role create.
@@ -16,8 +19,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoleCreateDto {
+
     @NotBlank
-    @Size(min = 3, max = 100)
+    @Size(min = 3, max = 100, message = "Name must contain between 3 and 100 characters")
     private String name;
+
+    @NotEmpty
+    private List<Long> permissionIds;
 }
 
