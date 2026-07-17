@@ -74,5 +74,10 @@ public class RoleService {
         roleRepository.delete(role);
     }
 
+    public Role getDefaultRole() {
+        return roleRepository.findByName("USER")
+                .orElseThrow(() -> new RoleNotFoundException("USER"));
+    }
+
 
 }

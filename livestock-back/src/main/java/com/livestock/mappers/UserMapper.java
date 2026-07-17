@@ -13,7 +13,6 @@ public class UserMapper {
 
     public UserResponseDto toResponseDto(User user) {
         return UserResponseDto.builder()
-                .id(user.getId())
                 .fullName(user.getFullName())
                 .email(user.getEmail())
                 .role(user.getRole().getName())
