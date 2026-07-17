@@ -4,7 +4,7 @@ package com.livestock.models.dtos.login;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,6 +23,9 @@ public class LoginRequestDto {
 
     @NotNull
     @NotBlank
-    @Size(min = 12, max = 255, message = "Password must be between 12 and 255 characters")
+    @Pattern(
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[.!*?%@=$£\\[\\]+]).{12,255}$",
+            message = "Password must contain at least 12 characters, one uppercase, one lowercase, one digit and one special character"
+    )
     private String password; // password clear
 }

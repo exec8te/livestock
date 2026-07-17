@@ -27,11 +27,11 @@ public class Permission {
 
     @Column(name = "resource", length = 100, nullable = false)
     @NotBlank
-    @Size(min = 3, max = 100)
+    @Size(min = 3, max = 100, message = "Resource must contain between 3 and 100 characters")
     private String resource;
 
     @Column(name = "action", nullable = false)
     @NotBlank
-    @Size(min = 4, max = 6)
+    @Size(min = 4, max = 100, message = "Action must contain between 4 and 100 characters")
     private String action;
 }

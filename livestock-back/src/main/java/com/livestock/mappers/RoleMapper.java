@@ -3,9 +3,12 @@ package com.livestock.mappers;
 import com.livestock.models.dtos.role.RoleCreateDto;
 import com.livestock.models.dtos.role.RoleResponseDto;
 import com.livestock.models.dtos.role.RoleUpdateDto;
+import com.livestock.models.entities.Permission;
 import com.livestock.models.entities.Role;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 
 @Component
@@ -16,6 +19,7 @@ public class RoleMapper {
         return RoleResponseDto.builder()
                 .id(role.getId())
                 .name(role.getName())
+                .permissions(role.getPermissions())
                 .createdAt(role.getCreatedAt())
                 .updatedAt(role.getUpdatedAt())
                 .build();
@@ -36,9 +40,10 @@ public class RoleMapper {
         }
     }
 
-    public boolean hasChanges(RoleUpdateDto dto, Role role) {
+    public boolean hasChanges(Role role, String name, Collection<Permission> permissions) {
 
-        return !Objects.equals(role.getName(), dto.getName());
+        return !Objects.equals(role.getName(), name)
+                || !role.getPermissions().equals(new HashSet<>(permissions));
     }
 }
 

@@ -27,12 +27,12 @@ public class User {
 
     @Column(name = "full_name", length = 120, nullable = false)
     @NotBlank
-    @Size(min = 3, max = 120)
+    @Size(min = 3, max = 120, message = "FullName must contain between 4 and 120 characters")
     private String fullName;
 
     @Column(name = "email", length = 320, nullable = false, unique = true)
     @NotBlank
-    @Size(min = 5, max = 320)
+    @Size(max = 320, message = "Email must contain max 320 characters")
     @Email
     private String email;
 

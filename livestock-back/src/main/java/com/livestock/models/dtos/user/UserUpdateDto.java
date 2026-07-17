@@ -2,6 +2,7 @@ package com.livestock.models.dtos.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +16,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class UserUpdateDto {
     @NotBlank
+    @Size(min = 2, max = 100, message = "FullName must contain between 2 and 100 characters")
     private String fullName;
 
     @NotBlank
