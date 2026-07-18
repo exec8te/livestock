@@ -1,0 +1,103 @@
+package com.livestock.services.authorization;
+
+import com.livestock.exceptions.BadRequestException;
+import com.livestock.exceptions.authorization.UserNotFoundException;
+import com.livestock.mappers.authorization.UserMapper;
+import com.livestock.models.dtos.authorization.user.UserResponseDto;
+import com.livestock.models.dtos.authorization.user.UserUpdateDto;
+import com.livestock.models.entities.authorization.Role;
+import com.livestock.models.entities.authorization.User;
+import com.livestock.repositories.authorization.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class UserServiceTest {
+
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private UserMapper userMapper;
+    @Mock
+    private RoleService roleService;
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @InjectMocks
+    private UserService userService;
+
+    private User user;
+    private UserResponseDto userResponseDto;
+
+    @BeforeEach
+    void setUp() {
+        Role role = Role.builder().id(1L).name("USER").build();
+        user = User.builder()
+                .id(1L)
+                .email("test@test.com")
+                .fullName("Test User")
+                .role(role)
+                .build();
+
+        userResponseDto = UserResponseDto.builder()
+                .email("test@test.com")
+                .fullName("Test User")
+                .role("USER")
+                .build();
+    }
+
+    @Test
+    void getUserById_WhenUserExists_ShouldReturnDto() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userMapper.toResponseDto(user)).thenReturn(userResponseDto);
+
+        UserResponseDto result = userService.getUserById(1L);
+
+        assertNotNull(result);
+        assertEquals(userResponseDto.getEmail(), result.getEmail());
+    }
+
+    @Test
+    void getUserById_WhenUserDoesNotExist_ShouldThrowException() {
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> userService.getUserById(1L));
+    }
+
+    @Test
+    void getAll_ShouldReturnPage() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<User> userPage = new PageImpl<>(List.of(user));
+        when(userRepository.findAll(pageable)).thenReturn(userPage);
+        when(userMapper.toResponseDto(any())).thenReturn(userResponseDto);
+
+        Page<UserResponseDto> result = userService.getAll(pageable);
+
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+    }
+
+    @Test
+    void updateUser_WhenNoChanges_ShouldThrowException() {
+        UserUpdateDto dto = UserUpdateDto.builder().email("test@test.com").fullName("Test User").build();
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        assertThrows(BadRequestException.class, () -> userService.updateUser(1L, dto));
+    }
+}
