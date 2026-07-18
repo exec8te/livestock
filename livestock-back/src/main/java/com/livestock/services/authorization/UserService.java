@@ -47,6 +47,7 @@ public class UserService {
                 .map(userMapper::toResponseDto);
     }
 
+    @Transactional
     public UserResponseDto createUser(RegisterRequestDto dto, UserPrincipal principal) {
 
         if (userRepository.existsByEmail(dto.getEmail())) {
@@ -154,6 +155,7 @@ public class UserService {
         userRepository.updateRoleForUsers(oldRoleId, newRoleId);
     }
 
+    @Transactional
     public User register(RegisterRequestDto dto) {
 
         if (userRepository.existsByEmail(dto.getEmail())) {
