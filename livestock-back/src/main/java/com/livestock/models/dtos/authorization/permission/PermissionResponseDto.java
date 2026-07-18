@@ -12,6 +12,7 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class PermissionResponseDto {
+    private Long id;
     private String resource;
     private PermissionAction action;
 }

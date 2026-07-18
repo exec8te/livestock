@@ -55,9 +55,14 @@ public class RoleController {
     @PutMapping("/{id}")
     public ResponseEntity<RoleResponseDto> update(
             @PathVariable Long id,
-            @Valid @RequestBody RoleUpdateDto dto) {
+            @Valid @RequestBody RoleUpdateDto dto,
+            @AuthenticationPrincipal UserPrincipal principal) {
 
-        RoleResponseDto role = roleService.updateRole(id, dto);
+        RoleResponseDto role = roleService.updateRole(
+                id,
+                dto,
+                principal);
+
         return ResponseEntity.status(HttpStatus.OK).body(role);
     }
 
@@ -66,8 +71,9 @@ public class RoleController {
     public ResponseEntity<Void> delete(
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal principal) {
-        
+
         roleService.deleteRole(id, principal);
+
         return ResponseEntity.noContent().build();
     }
 }

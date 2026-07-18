@@ -12,6 +12,7 @@ import com.livestock.models.entities.authorization.Role;
 import com.livestock.models.principals.authorization.UserPrincipal;
 import com.livestock.repositories.authorization.PermissionRepository;
 import com.livestock.repositories.authorization.RoleRepository;
+import com.livestock.repositories.authorization.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ import java.util.List;
 @Slf4j
 public class RoleService {
     private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
     private final RoleMapper roleMapper;
     private final PermissionRepository permissionRepository;
 
@@ -52,42 +54,74 @@ public class RoleService {
                 .map(roleMapper::toResponseDto);
     }
 
+    @Transactional
     public RoleResponseDto createRole(RoleCreateDto dto) {
 
         if (roleRepository.existsByName(dto.getName())) {
             throw new RoleAlreadyExistsException(dto.getName());
         }
 
+        List<Permission> permissions =
+                permissionRepository.findAllById(dto.getPermissionIds());
+
+        if (permissions.size() != dto.getPermissionIds().size()) {
+            throw new BadRequestException("One or more permissions do not exist");
+        }
+
         Role role = roleMapper.toCreateEntity(dto);
+
+        role.setPermissions(new HashSet<>(permissions));
 
         Role savedRole = roleRepository.save(role);
 
         return roleMapper.toResponseDto(savedRole);
     }
 
+    /**
+     * Updates a role
+     * 1. If the role is set to default (true), then other roles are set to false and users are updated
+     * to set the new default role on their account
+     *
+     * @param roleId role id
+     * @param dto    role update dto
+     * @return RoleResponseDto
+     */
     @Transactional
-    public RoleResponseDto updateRole(Long roleId, RoleUpdateDto dto) {
+    public RoleResponseDto updateRole(Long roleId, RoleUpdateDto dto, UserPrincipal principal) {
 
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new RoleNotFoundException(roleId));
 
-        if (!role.getName().equals(dto.getName())
-                && roleRepository.existsByName(dto.getName())) {
-            throw new RoleAlreadyExistsException(dto.getName());
+
+        if (Boolean.TRUE.equals(dto.getIsDefault())
+                && !Boolean.TRUE.equals(role.getIsDefault())) {
+
+            Role oldDefaultRole = roleRepository.findByIsDefaultTrue()
+                    .orElse(null);
+
+            if (oldDefaultRole != null) {
+                oldDefaultRole.setIsDefault(false);
+
+                userRepository.updateRoleForUsers(
+                        oldDefaultRole.getId(),
+                        role.getId()
+                );
+
+                log.warn(
+                        "event={} actorType={} actorId={} targetType={} targetId={} status=SUCCESS",
+                        "ROLE_DEFAULT_UPDATED",
+                        principal.getAuthorities(),
+                        principal.getId(),
+                        "ROLE",
+                        roleId
+                );
+            }
+
+            role.setIsDefault(true);
         }
 
-        List<Permission> permissions = permissionRepository.findAllById(dto.getPermissionIds());
 
-        if (permissions.size() != dto.getPermissionIds().size()) {
-            throw new BadRequestException("One or more permissions do not exist");
-        }
-
-        if (!roleMapper.hasChanges(role, dto.getName(), permissions)) {
-            throw new BadRequestException("No changes were made");
-        }
-
-        role.setName(dto.getName());
-        role.setPermissions(new HashSet<>(permissions));
+        roleMapper.updateEntity(dto, role);
 
         return roleMapper.toResponseDto(role);
     }
@@ -97,6 +131,10 @@ public class RoleService {
 
         Role role = roleRepository.findById(idToDelete)
                 .orElseThrow(() -> new RoleNotFoundException(idToDelete));
+
+        if (role.getIsDefault()) {
+            throw new BadRequestException("Cannot delete default role");
+        }
 
         roleRepository.delete(role);
 
@@ -113,6 +151,18 @@ public class RoleService {
     public Role getDefaultRole() {
         return roleRepository.findByName("USER")
                 .orElseThrow(() -> new RoleNotFoundException("USER"));
+    }
+
+    @Transactional
+    public void setDefaultRole(Long roleId) {
+
+        roleRepository.clearDefaultRole();
+
+
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new RoleNotFoundException(roleId));
+
+        role.setIsDefault(true);
     }
 
     public Role findEntityById(Long id) {

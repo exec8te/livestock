@@ -14,6 +14,7 @@ public class PermissionMapper {
     public PermissionResponseDto toResponseDto(Permission permission) {
 
         return PermissionResponseDto.builder()
+                .id(permission.getId())
                 .resource(permission.getResource())
                 .action(permission.getAction())
                 .build();
