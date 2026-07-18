@@ -1,6 +1,6 @@
 package com.livestock.models.dtos.authorization.permission;
 
-import com.livestock.validation.annotation.UppercaseOnly;
+import com.livestock.validations.annotations.UppercaseOnly;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

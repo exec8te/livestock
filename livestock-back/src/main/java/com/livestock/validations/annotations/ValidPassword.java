@@ -1,6 +1,6 @@
-package com.livestock.validation.annotation;
+package com.livestock.validations.annotations;
 
-import com.livestock.validation.validator.UppercaseValidator;
+import com.livestock.validations.validators.PasswordValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -11,10 +11,11 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = UppercaseValidator.class)
-public @interface UppercaseOnly {
+@Constraint(validatedBy = PasswordValidator.class)
+public @interface ValidPassword {
 
-    String message() default "Field must contain only uppercase characters";
+    String message() default
+            "Password must contain at least 12 characters, one uppercase letter, one lowercase letter, one number and one special character";
 
     Class<?>[] groups() default {};
 

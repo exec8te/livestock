@@ -1,7 +1,7 @@
 package com.livestock.models.dtos.authorization.login;
 
 
-import com.livestock.validation.annotation.ValidPassword;
+import com.livestock.validations.annotations.ValidPassword;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

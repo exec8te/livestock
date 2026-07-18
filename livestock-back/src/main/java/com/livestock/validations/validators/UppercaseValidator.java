@@ -1,6 +1,6 @@
-package com.livestock.validation.validator;
+package com.livestock.validations.validators;
 
-import com.livestock.validation.annotation.UppercaseOnly;
+import com.livestock.validations.annotations.UppercaseOnly;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.stereotype.Component;
