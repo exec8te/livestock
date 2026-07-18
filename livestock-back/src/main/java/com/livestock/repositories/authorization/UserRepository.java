@@ -40,4 +40,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
                 WHERE u.id = :id
             """)
     void softDelete(Long id);
+
+    @Modifying
+    @Query("""
+                UPDATE User u 
+                            SET u.lastLoginAt = NOW() 
+                            WHERE u.email = :email
+            """)
+    void updateDateLastLogin(@NotBlank @Email String email);
 }

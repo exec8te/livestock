@@ -1,6 +1,7 @@
 package com.livestock.services.authorization;
 
 import com.livestock.mappers.authorization.LoginMapper;
+import com.livestock.mappers.authorization.UserMapper;
 import com.livestock.models.dtos.authorization.login.LoginRequestDto;
 import com.livestock.models.dtos.authorization.login.LoginResponseDto;
 import com.livestock.models.dtos.authorization.login.RegisterRequestDto;
@@ -37,6 +38,8 @@ public class AuthService {
 
         String token = jwtService.generateToken(userDetails);
 
+        userService.updateDateLastLogin(dto.getEmail());
+
         return loginMapper.toResponseDto(
                 token,
                 jwtService.getExpirationTime()
@@ -59,6 +62,8 @@ public class AuthService {
                 (UserDetails) authentication.getPrincipal();
 
         String token = jwtService.generateToken(userDetails);
+
+        userService.updateDateLastLogin(dto.getEmail());
 
         return loginMapper.toResponseDto(
                 token,

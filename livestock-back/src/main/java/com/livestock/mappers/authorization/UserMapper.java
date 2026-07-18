@@ -37,7 +37,6 @@ public interface UserMapper {
             @MappingTarget User user
     );
 
-
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "role", ignore = true)

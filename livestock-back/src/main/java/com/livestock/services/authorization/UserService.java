@@ -5,10 +5,7 @@ import com.livestock.exceptions.authorization.EmailAlreadyExistsException;
 import com.livestock.exceptions.authorization.UserNotFoundException;
 import com.livestock.mappers.authorization.UserMapper;
 import com.livestock.models.dtos.authorization.login.RegisterRequestDto;
-import com.livestock.models.dtos.authorization.user.UserPasswordUpdateDto;
-import com.livestock.models.dtos.authorization.user.UserResponseDto;
-import com.livestock.models.dtos.authorization.user.UserUpdateAdminDto;
-import com.livestock.models.dtos.authorization.user.UserUpdateDto;
+import com.livestock.models.dtos.authorization.user.*;
 import com.livestock.models.entities.authorization.Role;
 import com.livestock.models.entities.authorization.User;
 import com.livestock.models.principals.authorization.UserPrincipal;
@@ -124,6 +121,12 @@ public class UserService {
 
 
         return userMapper.toResponseDto(user);
+    }
+
+    @Transactional
+    public void updateDateLastLogin(String email){
+
+        userRepository.updateDateLastLogin(email);
     }
 
 
