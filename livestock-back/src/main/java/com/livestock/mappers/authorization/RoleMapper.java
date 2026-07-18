@@ -19,6 +19,7 @@ public class RoleMapper {
         return RoleResponseDto.builder()
                 .id(role.getId())
                 .name(role.getName())
+                .isDefault(role.getIsDefault())
                 .permissions(role.getPermissions())
                 .createdAt(role.getCreatedAt())
                 .updatedAt(role.getUpdatedAt())
@@ -37,13 +38,15 @@ public class RoleMapper {
 
         if (roleDto.getName() != null) {
             role.setName(roleDto.getName());
+            role.setIsDefault(roleDto.getIsDefault());
         }
     }
 
-    public boolean hasChanges(Role role, String name, Collection<Permission> permissions) {
+    public boolean hasChanges(Role role, String name, Collection<Permission> permissions, Boolean isDefault) {
 
         return !Objects.equals(role.getName(), name)
-                || !role.getPermissions().equals(new HashSet<>(permissions));
+                || !role.getPermissions().equals(new HashSet<>(permissions))
+                || !role.getIsDefault().equals(isDefault);
     }
 }
 
