@@ -1,6 +1,6 @@
 package com.livestock.models.entities.authorization;
 
-import com.livestock.validation.annotation.UppercaseOnly;
+import com.livestock.validations.annotations.UppercaseOnly;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

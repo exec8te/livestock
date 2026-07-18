@@ -1,6 +1,6 @@
 package com.livestock.models.dtos.authorization.user;
 
-import com.livestock.validation.annotation.ValidPassword;
+import com.livestock.validations.annotations.ValidPassword;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
