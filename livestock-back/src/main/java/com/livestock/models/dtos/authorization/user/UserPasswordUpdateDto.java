@@ -1,7 +1,8 @@
 package com.livestock.models.dtos.authorization.user;
 
+import com.livestock.validation.annotation.ValidPassword;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -14,10 +15,12 @@ import lombok.Data;
 @AllArgsConstructor
 public class UserPasswordUpdateDto {
 
-    @NotBlank
+    @NotNull(message = "Old password is required")
+    @NotBlank(message = "Old password must not be blank")
+    @ValidPassword
     private String oldPassword;
 
-    @NotBlank
-    @Size(min = 12)
+    @NotNull(message = "Password is required")
+    @ValidPassword
     private String newPassword;
 }

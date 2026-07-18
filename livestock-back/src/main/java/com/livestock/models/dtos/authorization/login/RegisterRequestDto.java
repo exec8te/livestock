@@ -3,6 +3,7 @@ package com.livestock.models.dtos.authorization.login;
 import com.livestock.validation.annotation.ValidPassword;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,10 +26,10 @@ public class RegisterRequestDto {
 
     @NotBlank
     @Email
+    @Size(max = 320, message = "Email must contain max 320 characters")
     private String email;
 
-    @NotBlank
-    @Size(min = 12, max = 255, message = "Password must be between 12 and 255 characters")
+    @NotNull(message = "Password is required")
     @ValidPassword
     private String password;
 }

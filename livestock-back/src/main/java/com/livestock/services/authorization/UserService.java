@@ -24,22 +24,25 @@ import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
+
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
 
+
     public UserResponseDto getUserById(Long userId) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+        User user = findEntityById(userId);
 
         return userMapper.toResponseDto(user);
     }
+
 
     public Page<UserResponseDto> getAll(Pageable pageable) {
 
@@ -47,120 +50,23 @@ public class UserService {
                 .map(userMapper::toResponseDto);
     }
 
+
     @Transactional
-    public UserResponseDto createUser(RegisterRequestDto dto, UserPrincipal principal) {
+    public UserResponseDto createUser(
+            RegisterRequestDto dto,
+            UserPrincipal principal
+    ) {
 
         if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new EmailAlreadyExistsException(dto.getEmail());
-        }
 
-        User user = userMapper.toCreateEntity(dto);
-
-        user.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
-
-        User savedUser = userRepository.save(user);
-
-        User newUser = userRepository.findById(savedUser.getId())
-                .orElseThrow(() -> new UserNotFoundException(savedUser.getId()));
-
-
-        if (principal != null) {
-            log.info(
-                    "event=USER_CREATED actorType=USER actorId={} actorAuthorities={} targetType=USER targetId={} status=SUCCESS",
-                    principal.getId(),
-                    principal.getAuthorities(),
-                    newUser.getId()
+            log.warn(
+                    "event=USER_CREATED actorId={} reason=EMAIL_ALREADY_EXISTS status=FAILED",
+                    principal != null ? principal.getId() : "PUBLIC"
             );
-        } else {
-            log.info(
-                    "event=USER_CREATED actorType=SYSTEM actorId=PUBLIC_REGISTRATION targetType=USER targetId={} status=SUCCESS",
-                    newUser.getId()
-            );
-        }
 
-        return userMapper.toResponseDto(newUser);
-    }
-
-    @Transactional
-    public UserResponseDto updateUser(Long userId, UserUpdateDto dto) {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
-
-        if (!user.getEmail().equals(dto.getEmail())
-                && userRepository.existsByEmail(dto.getEmail())) {
             throw new EmailAlreadyExistsException(dto.getEmail());
         }
 
-        if (!hasChanges(dto, user)) {
-            throw new BadRequestException("No changes were made");
-        }
-
-        userMapper.updateEntity(dto, user);
-
-        return userMapper.toResponseDto(user);
-    }
-
-    @Transactional
-    public void updatePassword(Long userId, UserPasswordUpdateDto dto) {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
-
-        if (!passwordEncoder.matches(
-                dto.getOldPassword(),
-                user.getPasswordHash()
-        )) {
-            throw new BadRequestException("Old password is incorrect");
-        }
-
-        if (passwordEncoder.matches(
-                dto.getNewPassword(),
-                user.getPasswordHash()
-        )) {
-            throw new BadRequestException("New password can't be the same as old");
-        }
-
-        user.setPasswordHash(passwordEncoder.encode(dto.getNewPassword()));
-
-        userRepository.save(user);
-    }
-
-    @Transactional
-    public void deleteUser(Long idToDelete, UserPrincipal principal) {
-
-        Long actorId = principal.getId();
-
-        if (idToDelete.equals(actorId)) {
-            throw new AccessDeniedException("Cannot delete yourself");
-        }
-
-        if (!userRepository.existsById(idToDelete)) {
-            throw new UserNotFoundException(idToDelete);
-        }
-
-        userRepository.softDelete(idToDelete);
-
-        log.warn(
-                "event={} actorType={} actorId={} targetType={} targetId={} status=SUCCESS",
-                "USER_SOFT_DELETED",
-                principal.getAuthorities(),
-                principal.getId(),
-                "USER",
-                idToDelete
-        );
-    }
-
-    public void updateRoleForUsers(Long oldRoleId, Long newRoleId) {
-        userRepository.updateRoleForUsers(oldRoleId, newRoleId);
-    }
-
-    @Transactional
-    public User register(RegisterRequestDto dto) {
-
-        if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new EmailAlreadyExistsException(dto.getEmail());
-        }
 
         User user = userMapper.toCreateEntity(dto);
 
@@ -168,21 +74,191 @@ public class UserService {
                 passwordEncoder.encode(dto.getPassword())
         );
 
-        user.setRole(roleService.getDefaultRole());
 
         User savedUser = userRepository.save(user);
 
+
         log.info(
-                "event={} actorType={} actorId={} targetType={} targetId={} status=SUCCESS",
-                "USER_REGISTERED",
-                "SYSTEM",
-                "PUBLIC_REGISTRATION",
-                "USER",
+                "event=USER_CREATED actorType={} actorId={} targetType=USER targetId={} status=SUCCESS",
+                principal != null ? "USER" : "SYSTEM",
+                principal != null ? principal.getId() : "PUBLIC",
                 savedUser.getId()
         );
 
+
+        return userMapper.toResponseDto(savedUser);
+    }
+
+
+    @Transactional
+    public UserResponseDto updateUser(
+            Long userId,
+            UserUpdateDto dto
+    ) {
+
+        User user = findEntityById(userId);
+
+
+        if (!Objects.equals(user.getEmail(), dto.getEmail())
+                && userRepository.existsByEmail(dto.getEmail())) {
+
+            throw new EmailAlreadyExistsException(dto.getEmail());
+        }
+
+
+        if (!hasChanges(dto, user)) {
+
+            throw new BadRequestException(
+                    "No changes were made"
+            );
+        }
+
+
+        userMapper.updateEntity(dto, user);
+
+
+        log.info(
+                "event=USER_UPDATED targetType=USER targetId={} status=SUCCESS",
+                userId
+        );
+
+
+        return userMapper.toResponseDto(user);
+    }
+
+
+    @Transactional
+    public void updatePassword(
+            Long userId,
+            UserPasswordUpdateDto dto
+    ) {
+
+        User user = findEntityById(userId);
+
+
+        if (!passwordEncoder.matches(
+                dto.getOldPassword(),
+                user.getPasswordHash()
+        )) {
+
+            log.warn(
+                    "event=PASSWORD_UPDATED targetId={} reason=INVALID_OLD_PASSWORD status=FAILED",
+                    userId
+            );
+
+            throw new BadRequestException(
+                    "Old password is incorrect"
+            );
+        }
+
+
+        if (passwordEncoder.matches(
+                dto.getNewPassword(),
+                user.getPasswordHash()
+        )) {
+
+            throw new BadRequestException(
+                    "New password can't be the same as old"
+            );
+        }
+
+
+        user.setPasswordHash(
+                passwordEncoder.encode(dto.getNewPassword())
+        );
+
+
+        log.info(
+                "event=PASSWORD_UPDATED targetType=USER targetId={} status=SUCCESS",
+                userId
+        );
+    }
+
+
+    @Transactional
+    public void deleteUser(
+            Long userId,
+            UserPrincipal principal
+    ) {
+
+
+        if (Objects.equals(userId, principal.getId())) {
+
+            log.warn(
+                    "event=USER_DELETED actorId={} targetId={} reason=SELF_DELETE status=FAILED",
+                    principal.getId(),
+                    userId
+            );
+
+            throw new AccessDeniedException(
+                    "Cannot delete yourself"
+            );
+        }
+
+
+        User user = findEntityById(userId);
+
+
+        userRepository.softDelete(userId);
+
+
+        log.warn(
+                "event=USER_SOFT_DELETED actorId={} targetType=USER targetId={} status=SUCCESS",
+                principal.getId(),
+                user.getId()
+        );
+    }
+
+
+    public void updateRoleForUsers(
+            Long oldRoleId,
+            Long newRoleId
+    ) {
+
+        userRepository.updateRoleForUsers(
+                oldRoleId,
+                newRoleId
+        );
+    }
+
+
+    @Transactional
+    public User register(RegisterRequestDto dto) {
+
+
+        if (userRepository.existsByEmail(dto.getEmail())) {
+
+            throw new EmailAlreadyExistsException(
+                    dto.getEmail()
+            );
+        }
+
+
+        User user = userMapper.toCreateEntity(dto);
+
+
+        user.setPasswordHash(
+                passwordEncoder.encode(dto.getPassword())
+        );
+
+
+        user.setRole(
+                roleService.getDefaultRole()
+        );
+
+
+        User savedUser = userRepository.save(user);
+
+
+        log.info(
+                "event=USER_REGISTERED actorType=SYSTEM actorId=PUBLIC targetType=USER targetId={} status=SUCCESS",
+                savedUser.getId()
+        );
+
+
         return savedUser;
     }
+
 
     @Transactional
     public UserResponseDto updateUserByAdmin(
@@ -191,22 +267,28 @@ public class UserService {
             UserPrincipal principal
     ) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        User user = findEntityById(userId);
 
 
-        if (!user.getEmail().equals(dto.getEmail())
+        if (!Objects.equals(user.getEmail(), dto.getEmail())
                 && userRepository.existsByEmail(dto.getEmail())) {
 
-            throw new EmailAlreadyExistsException(dto.getEmail());
+            throw new EmailAlreadyExistsException(
+                    dto.getEmail()
+            );
         }
 
 
-        Role role = roleService.findEntityById(dto.getRoleId());
+        Role role =
+                roleService.findEntityById(dto.getRoleId());
 
 
         if (!hasChanges(dto, user)) {
-            throw new BadRequestException("No changes were made");
+
+            throw new BadRequestException(
+                    "No changes were made"
+            );
         }
 
 
@@ -216,25 +298,38 @@ public class UserService {
 
 
         log.info(
-                "event={} actorType={} actorId={} targetType={} targetId={} status=SUCCESS",
-                "USER_UPDATED",
-                principal.getAuthorities(),
+                "event=USER_UPDATED_BY_ADMIN actorId={} targetType=USER targetId={} status=SUCCESS",
                 principal.getId(),
-                "USER",
-                user.getId()
+                userId
         );
 
 
         return userMapper.toResponseDto(user);
     }
 
+
+    protected User findEntityById(Long id) {
+
+        return userRepository.findById(id)
+                .orElseThrow(
+                        () -> new UserNotFoundException(id)
+                );
+    }
+
+
     private boolean hasChanges(
             UserUpdateDto dto,
             User user
     ) {
-        if (dto == null || user == null) return false;
-        return !Objects.equals(user.getEmail(), dto.getEmail())
-                || !Objects.equals(user.getFullName(), dto.getFullName());
+
+        return !Objects.equals(
+                user.getEmail(),
+                dto.getEmail()
+        )
+                || !Objects.equals(
+                user.getFullName(),
+                dto.getFullName()
+        );
     }
 
 
@@ -242,9 +337,18 @@ public class UserService {
             UserUpdateAdminDto dto,
             User user
     ) {
-        if (dto == null || user == null) return false;
-        return !Objects.equals(user.getEmail(), dto.getEmail())
-                || !Objects.equals(user.getFullName(), dto.getFullName())
-                || (user.getRole() != null && !Objects.equals(user.getRole().getId(), dto.getRoleId()));
+
+        return !Objects.equals(
+                user.getEmail(),
+                dto.getEmail()
+        )
+                || !Objects.equals(
+                user.getFullName(),
+                dto.getFullName()
+        )
+                || !Objects.equals(
+                user.getRole().getId(),
+                dto.getRoleId()
+        );
     }
 }

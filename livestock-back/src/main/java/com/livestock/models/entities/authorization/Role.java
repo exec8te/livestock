@@ -1,8 +1,8 @@
 package com.livestock.models.entities.authorization;
 
+import com.livestock.validation.annotation.UppercaseOnly;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,10 +31,7 @@ public class Role {
     @Column(name = "name", length = 100, nullable = false)
     @NotBlank
     @Size(min = 3, max = 100, message = "Name must contain between 4 and 100 characters")
-    @Pattern(
-            regexp = "^[A-Z]+$",
-            message = "Only uppercase letters are allowed"
-    )
+    @UppercaseOnly(message = "Name, only uppercase letters are allowed")
     private String name;
 
     @Column(name = "is_default", nullable = false)
