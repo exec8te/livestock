@@ -17,12 +17,12 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class LoginRequestDto {
-    @NotBlank
+    @NotNull(message = "Email is required")
+    @NotBlank(message = "Email must not be blank")
     @Email
     private String email;
 
-    @NotNull
-    @NotBlank
+    @NotNull(message = "Password is required")
     @ValidPassword
     private String password; // password clear
 }

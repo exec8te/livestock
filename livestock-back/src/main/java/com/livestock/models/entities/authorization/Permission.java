@@ -1,9 +1,9 @@
 package com.livestock.models.entities.authorization;
 
 import com.livestock.models.dtos.authorization.permission.PermissionAction;
+import com.livestock.validation.annotation.UppercaseOnly;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,17 +30,11 @@ public class Permission {
     @Column(name = "resource", length = 100, nullable = false)
     @NotBlank(message = "Resource must not be blank")
     @Size(min = 3, max = 100, message = "Resource must contain between 3 and 100 characters")
-    @Pattern(
-            regexp = "^[A-Z]+$",
-            message = "Only uppercase letters are allowed"
-    )
+    @UppercaseOnly(message = "Resource, only uppercase letters are allowed")
     private String resource;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "action", nullable = false)
-    @Pattern(
-            regexp = "^[A-Z]+$",
-            message = "Only uppercase letters are allowed"
-    )
+    @UppercaseOnly(message = "Action, only uppercase letters are allowed")
     private PermissionAction action;
 }

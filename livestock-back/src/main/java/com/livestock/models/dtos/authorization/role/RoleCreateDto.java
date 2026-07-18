@@ -1,8 +1,9 @@
 package com.livestock.models.dtos.authorization.role;
 
+import com.livestock.validation.annotation.UppercaseOnly;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,12 +22,10 @@ import java.util.List;
 @AllArgsConstructor
 public class RoleCreateDto {
 
-    @NotBlank
+    @NotNull(message = "Name is required")
+    @NotBlank(message = "Name must not be blank")
     @Size(min = 3, max = 100, message = "Name must contain between 3 and 100 characters")
-    @Pattern(
-            regexp = "^[A-Z]+$",
-            message = "Only uppercase letters are allowed"
-    )
+    @UppercaseOnly(message = "Name, only uppercase letters are allowed")
     private String name;
 
     @NotEmpty(message = "At least one permission is required")

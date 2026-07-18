@@ -39,9 +39,14 @@ public class RoleController {
     @PreAuthorize("hasAuthority('ROLE_CREATE')")
     @PostMapping
     public ResponseEntity<RoleResponseDto> create(
-            @Valid @RequestBody RoleCreateDto dto) {
+            @Valid @RequestBody RoleCreateDto dto,
+            @AuthenticationPrincipal UserPrincipal principal) {
 
-        RoleResponseDto role = roleService.createRole(dto);
+        RoleResponseDto role = roleService.createRole(
+                dto,
+                principal
+        );
+
         return ResponseEntity.status(HttpStatus.CREATED).body(role);
     }
 
@@ -61,7 +66,8 @@ public class RoleController {
         RoleResponseDto role = roleService.updateRole(
                 id,
                 dto,
-                principal);
+                principal
+        );
 
         return ResponseEntity.status(HttpStatus.OK).body(role);
     }
@@ -72,7 +78,10 @@ public class RoleController {
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal principal) {
 
-        roleService.deleteRole(id, principal);
+        roleService.deleteRole(
+                id,
+                principal
+        );
 
         return ResponseEntity.noContent().build();
     }
