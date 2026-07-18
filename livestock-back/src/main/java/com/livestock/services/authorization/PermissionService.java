@@ -43,6 +43,7 @@ public class PermissionService {
         return permissionRepository.findAllById(ids);
     }
 
+    @Transactional
     public PermissionResponseDto createPermission(PermissionCreateDto dto) {
 
         if (permissionRepository.existsByResourceAndAction(dto.getResource(), dto.getAction())) {
