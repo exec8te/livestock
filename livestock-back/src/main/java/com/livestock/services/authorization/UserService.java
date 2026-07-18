@@ -14,9 +14,6 @@ import com.livestock.models.entities.authorization.User;
 import com.livestock.models.principals.authorization.UserPrincipal;
 import com.livestock.repositories.authorization.UserRepository;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,6 +21,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -92,7 +91,7 @@ public class UserService {
             throw new EmailAlreadyExistsException(dto.getEmail());
         }
 
-        if (!userMapper.hasChanges(dto, user)) {
+        if (!hasChanges(dto, user)) {
             throw new BadRequestException("No changes were made");
         }
 
@@ -151,8 +150,8 @@ public class UserService {
         );
     }
 
-    public boolean existsByEmail(@NotBlank @Valid @Email String email) {
-        return userRepository.existsByEmail(email);
+    public void updateRoleForUsers(Long oldRoleId, Long newRoleId) {
+        userRepository.updateRoleForUsers(oldRoleId, newRoleId);
     }
 
     public User register(RegisterRequestDto dto) {
@@ -204,7 +203,7 @@ public class UserService {
         Role role = roleService.findEntityById(dto.getRoleId());
 
 
-        if (!userMapper.hasChanges(dto, user)) {
+        if (!hasChanges(dto, user)) {
             throw new BadRequestException("No changes were made");
         }
 
@@ -225,5 +224,25 @@ public class UserService {
 
 
         return userMapper.toResponseDto(user);
+    }
+
+    private boolean hasChanges(
+            UserUpdateDto dto,
+            User user
+    ) {
+        if (dto == null || user == null) return false;
+        return !Objects.equals(user.getEmail(), dto.getEmail())
+                || !Objects.equals(user.getFullName(), dto.getFullName());
+    }
+
+
+    private boolean hasChanges(
+            UserUpdateAdminDto dto,
+            User user
+    ) {
+        if (dto == null || user == null) return false;
+        return !Objects.equals(user.getEmail(), dto.getEmail())
+                || !Objects.equals(user.getFullName(), dto.getFullName())
+                || (user.getRole() != null && !Objects.equals(user.getRole().getId(), dto.getRoleId()));
     }
 }
