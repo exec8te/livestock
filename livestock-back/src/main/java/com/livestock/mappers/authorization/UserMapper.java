@@ -5,84 +5,49 @@ import com.livestock.models.dtos.authorization.user.UserResponseDto;
 import com.livestock.models.dtos.authorization.user.UserUpdateAdminDto;
 import com.livestock.models.dtos.authorization.user.UserUpdateDto;
 import com.livestock.models.entities.authorization.User;
-import org.springframework.stereotype.Component;
+import org.mapstruct.*;
 
-import java.util.Objects;
-
-@Component
-public class UserMapper {
+@Mapper(componentModel = "spring")
+public interface UserMapper {
 
 
-    public UserResponseDto toResponseDto(User user) {
-
-        return UserResponseDto.builder()
-                .fullName(user.getFullName())
-                .email(user.getEmail())
-                .role(user.getRole().getName())
-                .lastLoginAt(user.getLastLoginAt())
-                .createdAt(user.getCreatedAt())
-                .updatedAt(user.getUpdatedAt())
-                .build();
-    }
+    @Mapping(target = "role", source = "role.name")
+    UserResponseDto toResponseDto(User user);
 
 
-    public User toCreateEntity(RegisterRequestDto dto) {
+    @Mapping(target = "passwordHash", source = "password")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "lastLoginAt", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    User toCreateEntity(RegisterRequestDto dto);
 
-        return User.builder()
-                .fullName(dto.getFullName())
-                .email(dto.getEmail())
-                .passwordHash(dto.getPassword())
-                .build();
-    }
 
-
-    public void updateEntity(
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "passwordHash", ignore = true)
+    @Mapping(target = "lastLoginAt", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "email", source = "email")
+    void updateEntity(
             UserUpdateDto dto,
-            User user
-    ) {
-
-        if (dto.getFullName() != null) {
-            user.setFullName(dto.getFullName());
-        }
-
-        if (dto.getEmail() != null) {
-            user.setEmail(dto.getEmail());
-        }
-    }
+            @MappingTarget User user
+    );
 
 
-    public void updateByAdminEntity(
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "passwordHash", ignore = true)
+    @Mapping(target = "lastLoginAt", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "email", source = "email")
+    void updateByAdminEntity(
             UserUpdateAdminDto dto,
-            User user
-    ) {
-
-        if (dto.getFullName() != null) {
-            user.setFullName(dto.getFullName());
-        }
-
-        if (dto.getEmail() != null) {
-            user.setEmail(dto.getEmail());
-        }
-    }
-
-
-    public boolean hasChanges(
-            UserUpdateDto dto,
-            User user
-    ) {
-
-        return !Objects.equals(user.getEmail(), dto.getEmail())
-                || !Objects.equals(user.getFullName(), dto.getFullName());
-    }
-
-
-    public boolean hasChanges(
-            UserUpdateAdminDto dto,
-            User user
-    ) {
-
-        return !Objects.equals(user.getEmail(), dto.getEmail())
-                || !Objects.equals(user.getFullName(), dto.getFullName())
-                || !Objects.equals(user.getRole().getId(), dto.getRoleId());
-    }
+            @MappingTarget User user
+    );
 }

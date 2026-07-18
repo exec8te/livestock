@@ -3,50 +3,35 @@ package com.livestock.mappers.authorization;
 import com.livestock.models.dtos.authorization.role.RoleCreateDto;
 import com.livestock.models.dtos.authorization.role.RoleResponseDto;
 import com.livestock.models.dtos.authorization.role.RoleUpdateDto;
-import com.livestock.models.entities.authorization.Permission;
 import com.livestock.models.entities.authorization.Role;
-import org.springframework.stereotype.Component;
+import org.mapstruct.*;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
-
-@Component
-public class RoleMapper {
-
-    public RoleResponseDto toResponseDto(Role role) {
-
-        return RoleResponseDto.builder()
-                .id(role.getId())
-                .name(role.getName())
-                .isDefault(role.getIsDefault())
-                .permissions(role.getPermissions())
-                .createdAt(role.getCreatedAt())
-                .updatedAt(role.getUpdatedAt())
-                .build();
-    }
+@Mapper(componentModel = "spring")
+public interface RoleMapper {
 
 
-    public Role toCreateEntity(RoleCreateDto dto) {
+    @Mapping(target = "permissions", source = "permissions")
+    RoleResponseDto toResponseDto(Role role);
 
-        return Role.builder()
-                .name(dto.getName())
-                .build();
-    }
 
-    public void updateEntity(RoleUpdateDto roleDto, Role role) {
+    @Mapping(target = "permissions", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "isDefault", ignore = true)
+    Role toCreateEntity(RoleCreateDto dto);
 
-        if (roleDto.getName() != null) {
-            role.setName(roleDto.getName());
-            role.setIsDefault(roleDto.getIsDefault());
-        }
-    }
 
-    public boolean hasChanges(Role role, String name, Collection<Permission> permissions, Boolean isDefault) {
+    @BeanMapping(
+            nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+    )
+    @Mapping(target = "permissions", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    void updateEntity(
+            RoleUpdateDto dto,
+            @MappingTarget Role role
+    );
 
-        return !Objects.equals(role.getName(), name)
-                || !role.getPermissions().equals(new HashSet<>(permissions))
-                || !role.getIsDefault().equals(isDefault);
-    }
 }
-

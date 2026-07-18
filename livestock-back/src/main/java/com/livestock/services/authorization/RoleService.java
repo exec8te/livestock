@@ -10,7 +10,6 @@ import com.livestock.models.dtos.authorization.role.RoleUpdateDto;
 import com.livestock.models.entities.authorization.Permission;
 import com.livestock.models.entities.authorization.Role;
 import com.livestock.models.principals.authorization.UserPrincipal;
-import com.livestock.repositories.authorization.PermissionRepository;
 import com.livestock.repositories.authorization.RoleRepository;
 import com.livestock.repositories.authorization.UserRepository;
 import jakarta.transaction.Transactional;
@@ -20,17 +19,19 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class RoleService {
     private final RoleRepository roleRepository;
-    private final UserRepository userRepository;
     private final RoleMapper roleMapper;
-    private final PermissionRepository permissionRepository;
+    private final PermissionService permissionService;
+    private final UserRepository userRepository;
 
     public RoleResponseDto getRoleById(Long roleId) {
 
@@ -62,7 +63,7 @@ public class RoleService {
         }
 
         List<Permission> permissions =
-                permissionRepository.findAllById(dto.getPermissionIds());
+                permissionService.findAllByIds(dto.getPermissionIds());
 
         if (permissions.size() != dto.getPermissionIds().size()) {
             throw new BadRequestException("One or more permissions do not exist");
@@ -87,11 +88,32 @@ public class RoleService {
      * @return RoleResponseDto
      */
     @Transactional
-    public RoleResponseDto updateRole(Long roleId, RoleUpdateDto dto, UserPrincipal principal) {
+    public RoleResponseDto updateRole(
+            Long roleId,
+            RoleUpdateDto dto,
+            UserPrincipal principal
+    ) {
 
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new RoleNotFoundException(roleId));
 
+        List<Permission> permissions =
+                permissionService.findAllByIds(dto.getPermissionIds());
+
+        if (permissions.size() != dto.getPermissionIds().size()) {
+            throw new BadRequestException(
+                    "One or more permissions do not exist"
+            );
+        }
+
+        if (!hasChanges(
+                role,
+                dto.getName(),
+                permissions,
+                dto.getIsDefault()
+        )) {
+            throw new BadRequestException("No changes detected");
+        }
 
         if (Boolean.TRUE.equals(dto.getIsDefault())
                 && !Boolean.TRUE.equals(role.getIsDefault())) {
@@ -100,6 +122,7 @@ public class RoleService {
                     .orElse(null);
 
             if (oldDefaultRole != null) {
+
                 oldDefaultRole.setIsDefault(false);
 
                 userRepository.updateRoleForUsers(
@@ -110,7 +133,7 @@ public class RoleService {
                 log.warn(
                         "event={} actorType={} actorId={} targetType={} targetId={} status=SUCCESS",
                         "ROLE_DEFAULT_UPDATED",
-                        principal.getAuthorities(),
+                        "USER",
                         principal.getId(),
                         "ROLE",
                         roleId
@@ -120,8 +143,9 @@ public class RoleService {
             role.setIsDefault(true);
         }
 
-
         roleMapper.updateEntity(dto, role);
+
+        role.setPermissions(new HashSet<>(permissions));
 
         return roleMapper.toResponseDto(role);
     }
@@ -149,6 +173,7 @@ public class RoleService {
     }
 
     public Role getDefaultRole() {
+
         return roleRepository.findByName("USER")
                 .orElseThrow(() -> new RoleNotFoundException("USER"));
     }
@@ -158,18 +183,34 @@ public class RoleService {
 
         roleRepository.clearDefaultRole();
 
-
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new RoleNotFoundException(roleId));
 
         role.setIsDefault(true);
     }
 
-    public Role findEntityById(Long id) {
+    protected Role findEntityById(Long id) {
 
         return roleRepository.findById(id)
                 .orElseThrow(() -> new RoleNotFoundException(id));
     }
 
+    private boolean hasChanges(
+            Role role,
+            String name,
+            Collection<Permission> permissions,
+            Boolean isDefault
+    ) {
+
+        return !Objects.equals(role.getName(), name)
+                || !Objects.equals(
+                role.getPermissions(),
+                new HashSet<>(permissions)
+        )
+                || !Objects.equals(
+                role.getIsDefault(),
+                isDefault
+        );
+    }
 
 }

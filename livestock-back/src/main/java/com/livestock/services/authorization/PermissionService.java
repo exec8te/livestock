@@ -15,6 +15,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 public class PermissionService {
@@ -33,6 +37,10 @@ public class PermissionService {
 
         return permissionRepository.findAll(pageable)
                 .map(permissionMapper::toResponseDto);
+    }
+
+    public List<Permission> findAllByIds(Collection<Long> ids) {
+        return permissionRepository.findAllById(ids);
     }
 
     public PermissionResponseDto createPermission(PermissionCreateDto dto) {
@@ -62,7 +70,7 @@ public class PermissionService {
             );
         }
 
-        if (!permissionMapper.hasChanges(dto, permission)) {
+        if (!hasChanges(dto, permission)) {
             throw new BadRequestException("No changes were made");
         }
 
@@ -81,5 +89,11 @@ public class PermissionService {
         permissionRepository.delete(permission);
     }
 
-
+    private boolean hasChanges(PermissionUpdateDto dto, Permission permission) {
+        if (dto == null || permission == null) {
+            return false;
+        }
+        return !Objects.equals(permission.getResource(), dto.getResource())
+                || !Objects.equals(permission.getAction(), dto.getAction());
+    }
 }
