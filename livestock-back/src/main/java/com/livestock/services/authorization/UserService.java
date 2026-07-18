@@ -138,11 +138,11 @@ public class UserService {
             throw new UserNotFoundException(idToDelete);
         }
 
-        userRepository.deleteById(idToDelete);
+        userRepository.softDelete(idToDelete);
 
-        log.info(
+        log.warn(
                 "event={} actorType={} actorId={} targetType={} targetId={} status=SUCCESS",
-                "USER_DELETED",
+                "USER_SOFT_DELETED",
                 principal.getAuthorities(),
                 principal.getId(),
                 "USER",

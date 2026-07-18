@@ -32,4 +32,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
             Long oldRoleId,
             Long newRoleId
     );
+
+    @Modifying
+    @Query("""
+                UPDATE User u 
+                SET u.disabled = true 
+                WHERE u.id = :id
+            """)
+    void softDelete(Long id);
 }
