@@ -38,8 +38,7 @@ public class PermissionController {
     public ResponseEntity<PermissionResponseDto> create(
             @Valid @RequestBody PermissionCreateDto dto) {
 
-        PermissionResponseDto permission = permissionService.createPermission(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(permission);
+        return ResponseEntity.status(HttpStatus.CREATED).body(permissionService.createPermission(dto));
     }
 
     @PreAuthorize("hasAuthority('PERMISSION_READ_ALL')")

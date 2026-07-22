@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 @SQLRestriction("disabled = false")
 public class User {
 
+    // TODO: transformer en UUID
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_user")

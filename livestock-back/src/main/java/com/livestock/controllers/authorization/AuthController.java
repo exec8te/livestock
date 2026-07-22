@@ -1,5 +1,6 @@
 package com.livestock.controllers.authorization;
 
+import com.livestock.models.dtos.authorization.login.LoginInternalResult;
 import com.livestock.models.dtos.authorization.login.LoginRequestDto;
 import com.livestock.models.dtos.authorization.login.LoginResponseDto;
 import com.livestock.models.dtos.authorization.login.RegisterRequestDto;
@@ -31,9 +32,9 @@ public class AuthController {
             @Valid @RequestBody LoginRequestDto dto,
             HttpServletResponse response
     ) {
-        LoginResponseDto loginResponse = authService.login(dto);
-        addTokenToCookie(response, loginResponse.getToken());
-        return ResponseEntity.ok(loginResponse);
+        LoginInternalResult result = authService.login(dto);
+        addTokenToCookie(response, result.getToken());
+        return ResponseEntity.ok(result.getResponseDto());
     }
 
     @PostMapping("/register")
@@ -41,9 +42,9 @@ public class AuthController {
             @Valid @RequestBody RegisterRequestDto dto,
             HttpServletResponse response
     ) {
-        LoginResponseDto loginResponse = authService.register(dto);
-        addTokenToCookie(response, loginResponse.getToken());
-        return ResponseEntity.ok(loginResponse);
+        LoginInternalResult result = authService.register(dto);
+        addTokenToCookie(response, result.getToken());
+        return ResponseEntity.ok(result.getResponseDto());
     }
 
     @PostMapping("/logout")
@@ -53,7 +54,7 @@ public class AuthController {
                 .secure(false) // Mettre à true en production (HTTPS)
                 .path("/")
                 .maxAge(0)
-                .sameSite("Lax")
+                .sameSite("Strict")
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         return ResponseEntity.ok().build();
@@ -65,7 +66,7 @@ public class AuthController {
                 .secure(false) // Mettre à true en production (HTTPS)
                 .path("/")
                 .maxAge(3600) // 1 heure par exemple, à ajuster selon JwtService
-                .sameSite("Lax")
+                .sameSite("Strict")
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }

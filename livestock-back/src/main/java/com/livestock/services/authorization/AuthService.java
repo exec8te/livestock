@@ -2,6 +2,7 @@ package com.livestock.services.authorization;
 
 import com.livestock.mappers.authorization.LoginMapper;
 import com.livestock.mappers.authorization.UserMapper;
+import com.livestock.models.dtos.authorization.login.LoginInternalResult;
 import com.livestock.models.dtos.authorization.login.LoginRequestDto;
 import com.livestock.models.dtos.authorization.login.LoginResponseDto;
 import com.livestock.models.dtos.authorization.login.RegisterRequestDto;
@@ -23,7 +24,7 @@ public class AuthService {
     private final LoginMapper loginMapper;
     private final UserService userService;
 
-    public LoginResponseDto login(LoginRequestDto dto) {
+    public LoginInternalResult login(LoginRequestDto dto) {
 
         Authentication authentication =
                 authenticationManager.authenticate(
@@ -40,13 +41,15 @@ public class AuthService {
 
         userService.updateDateLastLogin(dto.getEmail());
 
-        return loginMapper.toResponseDto(
-                token,
-                jwtService.getExpirationTime()
-        );
+        return LoginInternalResult.builder()
+                .token(token)
+                .responseDto(loginMapper.toResponseDto(
+                        jwtService.getExpirationTime()
+                ))
+                .build();
     }
 
-    public LoginResponseDto register(RegisterRequestDto dto) {
+    public LoginInternalResult register(RegisterRequestDto dto) {
 
         userService.register(dto);
 
@@ -65,9 +68,11 @@ public class AuthService {
 
         userService.updateDateLastLogin(dto.getEmail());
 
-        return loginMapper.toResponseDto(
-                token,
-                jwtService.getExpirationTime()
-        );
+        return LoginInternalResult.builder()
+                .token(token)
+                .responseDto(loginMapper.toResponseDto(
+                        jwtService.getExpirationTime()
+                ))
+                .build();
     }
 }
