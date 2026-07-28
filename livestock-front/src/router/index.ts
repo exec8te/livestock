@@ -9,11 +9,17 @@ import UserDetailView from "@/views/UserDetailView.vue";
 const routes: RouteRecordRaw[] = [
     {
         path: "/",
-        redirect: "/users",
+        name: "root",
+        component: UserDetailView
     },
     {
         path: "/login",
         name: "login",
+        component: AuthFormView,
+    },
+    {
+        path: "/logout",
+        name: "logout",
         component: AuthFormView,
     },
     {
