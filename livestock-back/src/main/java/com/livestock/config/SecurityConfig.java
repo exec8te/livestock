@@ -1,6 +1,7 @@
 package com.livestock.config;
 
 import com.livestock.filters.authorization.JwtAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -21,6 +22,9 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final DelegatedAuthenticationEntryPoint authenticationEntryPoint;
 
+    @Value("${cors.allowed-origins}")
+    private String allowedOrigins;
+
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
             AuthenticationProvider authenticationProvider,
@@ -39,7 +43,7 @@ public class SecurityConfig {
 
                 .cors(cors -> cors.configurationSource(request -> {
                     var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
-                    corsConfiguration.setAllowedOrigins(java.util.List.of("http://localhost:5173"));
+                    corsConfiguration.setAllowedOrigins(java.util.List.of(allowedOrigins));
                     corsConfiguration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     corsConfiguration.setAllowedHeaders(java.util.List.of("*"));
                     corsConfiguration.setAllowCredentials(true);
