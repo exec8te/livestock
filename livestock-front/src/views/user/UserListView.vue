@@ -30,6 +30,14 @@ function toggleSelectAll() {
   <section class="main">
     <div class="main-header">
       <h1 class="main-header__title">Liste des utilisateurs</h1>
+      <div class="header__actions">
+        <button class="header-action">
+          <i class="fa-solid fa-arrow-up-from-bracket"></i>
+        </button>
+        <button class="header-action">
+          <i class="fa-solid fa-ellipsis"></i>
+        </button>
+      </div>
     </div>
 
 
@@ -39,17 +47,49 @@ function toggleSelectAll() {
 
 
     <div v-else class="table">
+
+      <section class="table__tools">
+        <div class="tools-main">
+          <button class="tool"><i class="fa-solid fa-sliders"></i><span>Filter</span></button>
+          <div class="search">
+            <div class="search__icon">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+
+            <input
+                class="search__input"
+                placeholder="Rechercher un utilisateur..."
+                type="text"
+            />
+          </div>
+
+        </div>
+
+        <button class="tool"><span>Clear</span></button>
+
+      </section>
+
       <table class="table__table">
         <thead class="table__head">
         <tr class="table__row table__row--head">
           <th class="table__cell table__cell--head table__cell--checkbox">
             <input class="table__checkbox" type="checkbox" @click="toggleSelectAll()"/>
           </th>
-          <th class="table__cell table__cell--head">Full name</th>
-          <th class="table__cell table__cell--head">Email</th>
-          <th class="table__cell table__cell--head">Role</th>
-          <th class="table__cell table__cell--head">Date modification</th>
-          <th class="table__cell table__cell--head">Date creation</th>
+          <th class="table__cell table__cell--head">
+            Full name
+          </th>
+          <th class="table__cell table__cell--head">
+            Email
+          </th>
+          <th class="table__cell table__cell--head">
+            Role
+          </th>
+          <th class="table__cell table__cell--head">
+            Updated at
+          </th>
+          <th class="table__cell table__cell--head">
+            Created at
+          </th>
           <th class="table__cell table__cell--head">Action</th>
         </tr>
         </thead>
@@ -120,8 +160,12 @@ function toggleSelectAll() {
 
 .main-header {
   width: 100%;
-  padding: 1rem 1rem;
+  padding: 1rem 5rem 1rem 1rem;
   border-bottom: 1px solid var(--color-border-primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 5rem 1rem 2rem;
 }
 
 .main-header__title {
@@ -130,16 +174,148 @@ function toggleSelectAll() {
   font-weight: 500;
 }
 
+.header__actions {
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+}
+
+.header-action {
+  font-size: 1rem;
+  font-weight: 500;
+  padding: .4rem .6rem;
+  background: var(--color-background-primary);
+  border-radius: .4rem;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-text-tertiary);
+  display: flex;
+  align-items: center;
+  transition: .15s;
+}
+
+.header-action i {
+  font-size: 1.1rem;
+}
+
+.header-action:hover {
+  background: var(--color-text-tertiary);
+  color: var(--color-background-primary);
+  cursor: pointer;
+}
+
 .table {
   overflow: hidden;
-  font-family: var(--font-primary);
   width: 100%;
-  padding: 1rem;
+  padding: 2rem 5rem 2rem 2rem;
+}
+
+.table__tools {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tools-main {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+}
+
+
+.tool {
+  padding: .3rem .7rem;
+  background: var(--color-background-primary);
+  border-radius: .8rem;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-primary);
+  display: flex;
+  gap: .4rem;
+  align-items: center;
+  font-size: .8rem;
+  height: 1.8rem;
+  cursor: pointer;
+  transition: .15s;
+}
+
+.tool i {
+  font-size: .8rem;
+}
+
+.tool:hover {
+  background: var(--color-text-primary);
+  border-color: var(--color-text-primary);
+  color: var(--color-background-primary);
+}
+
+.search {
+  display: flex;
+  align-items: center;
+
+  width: 250px;
+  height: 1.8rem;
+
+  border: 1px solid var(--color-border-primary);
+  border-radius: .75rem;
+  overflow: hidden;
+
+  background: var(--color-background-primary);
+  transition: .2s;
+
+  font-size: .9rem;
+
+}
+
+.search__icon {
+  width: 2.8rem;
+  height: 100%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: var(--color-text-primary);
+  color: var(--color-background-primary);
+  flex-shrink: 0;
+}
+
+.search__input {
+  flex: 1;
+  height: 100%;
+
+  padding: 0 1rem;
+  border: none;
+  outline: none;
+
+  background: transparent;
+  color: var(--color-text-primary);
+  font-style: italic;
+}
+
+.search__input::placeholder {
+  color: var(--color-text-tertiary);
 }
 
 .table__table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.table__head-content {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  width: 100%;
+}
+
+.btn--sort {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  padding: 0;
 }
 
 .table__row--body {
@@ -155,7 +331,7 @@ function toggleSelectAll() {
 }
 
 .table__cell {
-  padding: 16px 20px;
+  padding: 1rem 0 1rem 0;
   text-align: left;
   font-size: 14px;
   color: var(--color-text-primary);

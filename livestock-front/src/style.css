@@ -81,11 +81,27 @@
     --font-primary: 'Poppins', sans-serif;
 
     --color-gradiant-primary: linear-gradient(90deg, rgb(178 83 255), rgb(184 62 255));
+
+    /* Success */
+    --color-success-primary: #22c55e;
+    --color-success-background: #dcfce7;
+    --color-success-border: #86efac;
+
+    /* Info */
+    --color-info-primary: #0649d9;
+    --color-info-background: #ebeeff;
+    --color-info-border: #4d5cfc;
+
+    /* Warning */
+    --color-warning-primary: #d97706;
+    --color-warning-background: #fffbeb;
+    --color-warning-border: #fcd34d;
+
+    /* Error */
     --color-error-primary: #e74c3c;
     --color-error-background: #fdeaea;
     --color-error-border: #f5c6cb;
-    --color-success-primary: #42b883;
-    --color-success-hover: #369f6e;
+
     --color-border-primary: #a5a5a5;
     --color-shadow: rgba(0, 0, 0, 0.08);
 }
