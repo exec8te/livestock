@@ -1,31 +1,31 @@
 import api from "@/utils/api.ts";
-import type {User} from "@/types/user/User.ts";
-import type {UserUpdatePassword} from "@/types/user/UserUpdatePassword.ts";
-import type {UserUpdateAdmin} from "@/types/user/UserUpdateAdmin.ts";
-import type {UserUpdate} from "@/types/user/UserUpdate.ts";
-import type {PageResponse} from "@/types/PageResponse.ts";
+import type {UserDto} from "@/dto/user/UserDto.ts";
+import type {UserUpdatePasswordDto} from "@/dto/user/UserUpdatePasswordDto.ts";
+import type {UserUpdateAdminDto} from "@/dto/user/UserUpdateAdminDto.ts";
+import type {UserUpdateDto} from "@/dto/user/UserUpdateDto.ts";
+import type {PageResponse} from "@/dto/PageResponse.ts";
 
 export function getMe() {
-    return api.get<User>("/users/me");
+    return api.get<UserDto>("/users/me");
 }
 
-export function updateMe(user: UserUpdate) {
+export function updateMe(user: UserUpdateDto) {
     return api.put("/users/me", user);
 }
 
-export function updateMePassword(user: UserUpdatePassword) {
+export function updateMePassword(user: UserUpdatePasswordDto) {
     return api.put('/users/me/password', user);
 }
 
 export function getAll() {
-    return api.get<PageResponse<User>>("/users");
+    return api.get<PageResponse<UserDto>>("/users");
 }
 
 export function getUserById(id: number) {
-    return api.get<User>(`/users/${id}`);
+    return api.get<UserDto>(`/users/${id}`);
 }
 
-export function updateUserAdmin(id: number, user: UserUpdateAdmin) {
+export function updateUserAdmin(id: number, user: UserUpdateAdminDto) {
     return api.put(`/users/${id}`, user);
 }
 

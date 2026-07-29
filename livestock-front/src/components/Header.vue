@@ -11,7 +11,7 @@ const {user} = storeToRefs(authStore);
 
 const groups = ref([
   {
-    title: "Favories",
+    title: "Favoris",
     isOpen: true,
     links: [
       {to: "/", label: "Dashboard", icon: "fa-solid fa-square-poll-vertical"},
@@ -101,10 +101,11 @@ const toggleAccount = () => {
   justify-content: start;
   align-items: center;
   height: 100vh;
-  width: max(15vw, 250px);
-  background: var(--color-background-secondary);
+  width: 300px;
+  background: var(--color-background-primary);
   color: var(--color-text-primary);
-  padding: 2rem 1rem 2rem 1rem;
+  padding: 1rem 1rem 2rem 1rem;
+  border-right: 1px solid var(--color-border-primary);
 }
 
 .header__navbar {
@@ -128,7 +129,6 @@ const toggleAccount = () => {
   margin-top: auto;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--color-text-primary);
   border-radius: 0.5rem;
 }
 </style>

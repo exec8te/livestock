@@ -1,12 +1,13 @@
 import api from "@/utils/api";
-import type {Login} from "@/types/auth/Login.ts";
+import type {LoginDto} from "@/dto/auth/LoginDto.ts";
+import type {RegisterDto} from "@/dto/auth/RegisterDto.ts";
 
-export function login(data: Login) {
+export function login(data: LoginDto) {
     return api.post("/auth/login", data);
 }
 
-export function register() {
-    return api.post("/auth/register");
+export function register(data: RegisterDto) {
+    return api.post("/auth/register", data);
 }
 
 export function logout() {

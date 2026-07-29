@@ -21,6 +21,7 @@ public interface UserMapper {
     @Mapping(target = "lastLoginAt", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "disabled", ignore = true)
     User toCreateEntity(RegisterRequestDto dto);
 
 

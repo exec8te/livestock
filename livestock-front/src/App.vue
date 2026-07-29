@@ -19,8 +19,12 @@ import Header from "@/components/Header.vue";
 }
 
 .main-content {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
   overflow-y: auto;
-  padding: 2rem;
 }
 </style>

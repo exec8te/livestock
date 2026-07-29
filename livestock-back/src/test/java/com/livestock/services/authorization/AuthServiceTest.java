@@ -1,6 +1,7 @@
 package com.livestock.services.authorization;
 
 import com.livestock.mappers.authorization.LoginMapper;
+import com.livestock.models.dtos.authorization.login.LoginInternalResult;
 import com.livestock.models.dtos.authorization.login.LoginRequestDto;
 import com.livestock.models.dtos.authorization.login.LoginResponseDto;
 import com.livestock.models.dtos.authorization.login.RegisterRequestDto;
@@ -47,13 +48,15 @@ class AuthServiceTest {
         when(authentication.getPrincipal()).thenReturn(userDetails);
         when(jwtService.generateToken(userDetails)).thenReturn("mock-token");
         when(jwtService.getExpirationTime()).thenReturn(3600L);
-        when(loginMapper.toResponseDto("mock-token", 3600L))
-                .thenReturn(LoginResponseDto.builder().token("mock-token").build());
+        when(loginMapper.toResponseDto(3600L))
+                .thenReturn(LoginResponseDto.builder().expiresIn(3600L).build());
 
-        LoginResponseDto result = authService.login(dto);
+        LoginInternalResult result = authService.login(dto);
 
         assertNotNull(result);
         assertEquals("mock-token", result.getToken());
+        assertNotNull(result.getResponseDto());
+        assertEquals(3600L, result.getResponseDto().getExpiresIn());
     }
 
     @Test
@@ -71,12 +74,13 @@ class AuthServiceTest {
         when(authentication.getPrincipal()).thenReturn(userDetails);
         when(jwtService.generateToken(userDetails)).thenReturn("mock-token");
         when(jwtService.getExpirationTime()).thenReturn(3600L);
-        when(loginMapper.toResponseDto("mock-token", 3600L))
-                .thenReturn(LoginResponseDto.builder().token("mock-token").build());
+        when(loginMapper.toResponseDto(3600L))
+                .thenReturn(LoginResponseDto.builder().expiresIn(3600L).build());
 
-        LoginResponseDto result = authService.register(dto);
+        LoginInternalResult result = authService.register(dto);
 
         assertNotNull(result);
+        assertEquals("mock-token", result.getToken());
         verify(userService).register(dto);
     }
 }

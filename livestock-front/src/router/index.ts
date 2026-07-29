@@ -1,10 +1,11 @@
 import {createRouter, createWebHistory, type RouteRecordRaw} from "vue-router";
 
 import UserListView from "@/views/user/UserListView.vue";
-import AuthFormView from "@/views/AuthFormView.vue";
 
 import {useAuthStore} from "@/stores/auth";
 import UserDetailView from "@/views/UserDetailView.vue";
+import LoginView from "@/views/auth/LoginView.vue";
+import RegisterView from "@/views/auth/RegisterView.vue";
 
 const routes: RouteRecordRaw[] = [
     {
@@ -15,12 +16,12 @@ const routes: RouteRecordRaw[] = [
     {
         path: "/login",
         name: "login",
-        component: AuthFormView,
+        component: LoginView,
     },
     {
-        path: "/logout",
-        name: "logout",
-        component: AuthFormView,
+        path: "/register",
+        name: "register",
+        component: RegisterView,
     },
     {
         path: "/users",
@@ -29,6 +30,11 @@ const routes: RouteRecordRaw[] = [
         meta: {
             requiresAuth: true,
         },
+    },
+    {
+        path: "/users/:id",
+        name: "user-edit",
+        component: UserDetailView,
     },
     {
         path: "/profil",

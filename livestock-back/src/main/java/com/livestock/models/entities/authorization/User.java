@@ -57,6 +57,7 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "disabled", nullable = false)
     private Boolean disabled = false;
 
 

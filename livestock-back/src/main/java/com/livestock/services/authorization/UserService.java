@@ -238,7 +238,7 @@ public class UserService {
 
 
         User user = userMapper.toCreateEntity(dto);
-
+        user.setDisabled(false);
 
         user.setPasswordHash(
                 passwordEncoder.encode(dto.getPassword())

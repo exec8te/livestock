@@ -1,10 +1,23 @@
 <script lang="ts" setup>
-import {storeToRefs} from "pinia";
-import {useAuthStore} from "@/stores/auth";
+import {onMounted, ref} from "vue";
+import {useRoute} from "vue-router";
+import {getUserById} from "@/services/UserService";
+import type {UserDto} from "@/dto/user/UserDto";
 
-const authStore = useAuthStore();
+const route = useRoute();
 
-const {user} = storeToRefs(authStore);
+const id = Number(route.params.id);
+
+const user = ref<UserDto | null>(null);
+
+onMounted(async () => {
+  try {
+    const response = await getUserById(id);
+    user.value = response.data;
+  } catch (error) {
+    console.error(error);
+  }
+});
 </script>
 
 <template>

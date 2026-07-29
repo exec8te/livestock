@@ -1,13 +1,13 @@
 import {defineStore} from "pinia";
 import * as authService from "@/services/AuthService";
-import type {User} from "@/types/user/User.ts";
-import type {Login} from "@/types/auth/Login.ts";
+import type {UserDto} from "@/dto/user/UserDto.ts";
+import type {LoginDto} from "@/dto/auth/LoginDto.ts";
 import {getMe} from "@/services/UserService";
 import axios from "axios";
 
 export const useAuthStore = defineStore("auth", {
     state: () => ({
-        user: null as User | null,
+        user: null as UserDto | null,
         isAuthenticated: false,
         initialized: false,
     }),
@@ -34,7 +34,7 @@ export const useAuthStore = defineStore("auth", {
             }
         },
 
-        async login(login: Login) {
+        async login(login: LoginDto) {
             try {
                 await authService.login(login);
                 await this.fetchUser();
