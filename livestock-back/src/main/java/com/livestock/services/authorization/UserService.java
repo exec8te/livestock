@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 
 @Service
@@ -37,7 +38,7 @@ public class UserService {
     private final RoleService roleService;
 
 
-    public UserResponseDto getUserById(String userId) {
+    public UserResponseDto getUserById(UUID userId) {
 
         User user = findEntityById(userId);
 
@@ -108,7 +109,7 @@ public class UserService {
 
     @Transactional
     public UserResponseDto updateUser(
-            String userId,
+            UUID userId,
             UserUpdateDto dto
     ) {
 
@@ -151,7 +152,7 @@ public class UserService {
 
     @Transactional
     public void updatePassword(
-            String userId,
+            UUID userId,
             UserPasswordUpdateDto dto
     ) {
 
@@ -199,7 +200,7 @@ public class UserService {
 
     @Transactional
     public void deleteUser(
-            String userId,
+            UUID userId,
             UserPrincipal principal
     ) {
 
@@ -284,7 +285,7 @@ public class UserService {
 
     @Transactional
     public UserResponseDto updateUserByAdmin(
-            String userId,
+            UUID userId,
             UserUpdateAdminDto dto,
             UserPrincipal principal
     ) {
@@ -330,7 +331,7 @@ public class UserService {
     }
 
 
-    protected User findEntityById(String id) {
+    protected User findEntityById(UUID id) {
 
         return userRepository.findById(id)
                 .orElseThrow(

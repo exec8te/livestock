@@ -30,14 +30,14 @@ export function updateMePassword(user: UserUpdatePasswordDto) {
     return axios.put("/users/me/password", user);
 }
 
-export function getUserById(id: number) {
+export function getUserById(id: string) {
     return axios.get<UserDto>(`/users/${id}`);
 }
 
-export function updateUserAdmin(id: number, user: UserUpdateAdminDto) {
+export function updateUserAdmin(id: string, user: UserUpdateAdminDto) {
     return axios.put(`/users/${id}`, user);
 }
 
-export function deleteUserById(id: number) {
+export function deleteUserById(id: string) {
     return axios.delete(`/users/${id}`);
 }

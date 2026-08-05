@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * This class represent a dto of user response.
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 public class UserResponseDto {
-    private String id;
+    private UUID id;
     private String fullName;
     private String email;
     private String role;

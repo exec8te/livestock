@@ -7,6 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.UUID;
 
 /**
  * This class represent the security context of the user.
@@ -15,7 +16,7 @@ import java.util.Collection;
  */
 public class UserPrincipal implements UserDetails {
 
-    private final String id;
+    private final UUID id;
     private final String email;
     private final String passwordHash;
     private final Role role;
@@ -41,7 +42,7 @@ public class UserPrincipal implements UserDetails {
         return authorities;
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 

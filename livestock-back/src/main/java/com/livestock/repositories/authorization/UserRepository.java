@@ -12,10 +12,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 
 @Repository
-public interface UserRepository extends JpaRepository<User, String>, JpaSpecificationExecutor<User> {
+public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificationExecutor<User> {
 
     boolean existsByEmail(String email);
 
@@ -38,7 +39,7 @@ public interface UserRepository extends JpaRepository<User, String>, JpaSpecific
                 SET u.disabled = true 
                 WHERE u.id = :id
             """)
-    void softDelete(String id);
+    void softDelete(UUID id);
 
     @Modifying
     @Query("""

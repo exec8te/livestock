@@ -22,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,19 +45,20 @@ class UserServiceTest {
 
     private User user;
     private UserResponseDto userResponseDto;
+    private final UUID userId = UUID.randomUUID();
 
     @BeforeEach
     void setUp() {
         Role role = Role.builder().id(1L).name("USER").build();
         user = User.builder()
-                .id("uuid-1")
+                .id(userId)
                 .email("test@test.com")
                 .fullName("Test User")
                 .role(role)
                 .build();
 
         userResponseDto = UserResponseDto.builder()
-                .id("uuid-1")
+                .id(userId)
                 .email("test@test.com")
                 .fullName("Test User")
                 .role("USER")
@@ -65,10 +67,10 @@ class UserServiceTest {
 
     @Test
     void getUserById_WhenUserExists_ShouldReturnDto() {
-        when(userRepository.findById("uuid-1")).thenReturn(Optional.of(user));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(userMapper.toResponseDto(user)).thenReturn(userResponseDto);
 
-        UserResponseDto result = userService.getUserById("uuid-1");
+        UserResponseDto result = userService.getUserById(userId);
 
         assertNotNull(result);
         assertEquals(userResponseDto.getEmail(), result.getEmail());
@@ -76,9 +78,9 @@ class UserServiceTest {
 
     @Test
     void getUserById_WhenUserDoesNotExist_ShouldThrowException() {
-        when(userRepository.findById("uuid-1")).thenReturn(Optional.empty());
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThrows(UserNotFoundException.class, () -> userService.getUserById("uuid-1"));
+        assertThrows(UserNotFoundException.class, () -> userService.getUserById(userId));
     }
 
     @Test
@@ -101,8 +103,8 @@ class UserServiceTest {
     @Test
     void updateUser_WhenNoChanges_ShouldThrowException() {
         UserUpdateDto dto = UserUpdateDto.builder().email("test@test.com").fullName("Test User").build();
-        when(userRepository.findById("uuid-1")).thenReturn(Optional.of(user));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        assertThrows(BadRequestException.class, () -> userService.updateUser("uuid-1", dto));
+        assertThrows(BadRequestException.class, () -> userService.updateUser(userId, dto));
     }
 }

@@ -16,6 +16,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -83,7 +85,7 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('USER_READ_ALL')")
     @GetMapping("/{id}")
-    public UserResponseDto getById(@PathVariable String id) {
+    public UserResponseDto getById(@PathVariable UUID id) {
 
         return userService.getUserById(id);
     }
@@ -91,7 +93,7 @@ public class UserController {
     @PreAuthorize("hasAuthority('USER_UPDATE_ALL')")
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDto> update(
-            @PathVariable String id,
+            @PathVariable UUID id,
             @Valid @RequestBody UserUpdateAdminDto dto,
             @AuthenticationPrincipal UserPrincipal principal) {
 
@@ -107,7 +109,7 @@ public class UserController {
     @PreAuthorize("hasAuthority('USER_UPDATE_ALL')")
     @PutMapping("/{id}/password")
     public ResponseEntity<Void> updatePassword(
-            @PathVariable String id,
+            @PathVariable UUID id,
             @Valid @RequestBody UserPasswordUpdateDto dto) {
 
         userService.updatePassword(
@@ -121,7 +123,7 @@ public class UserController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('USER_DELETE_ALL')")
     public ResponseEntity<Void> deleteUser(
-            @PathVariable String id,
+            @PathVariable UUID id,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
 

@@ -1,7 +1,9 @@
 package com.livestock.exceptions.authorization;
 
+import java.util.UUID;
+
 public class UserNotFoundException extends RuntimeException {
-    public UserNotFoundException(String id) {
+    public UserNotFoundException(UUID id) {
         super("User not found with ID : " + id);
     }
 }

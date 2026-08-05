@@ -8,6 +8,7 @@ import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * This class represent a user.
@@ -25,7 +26,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id_user", length = 36)
-    private String id;
+    private UUID id;
 
     @Column(name = "full_name", length = 120, nullable = false)
     @NotBlank
