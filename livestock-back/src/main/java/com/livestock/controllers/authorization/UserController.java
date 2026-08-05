@@ -83,7 +83,7 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('USER_READ_ALL')")
     @GetMapping("/{id}")
-    public UserResponseDto getById(@PathVariable Long id) {
+    public UserResponseDto getById(@PathVariable String id) {
 
         return userService.getUserById(id);
     }
@@ -91,7 +91,7 @@ public class UserController {
     @PreAuthorize("hasAuthority('USER_UPDATE_ALL')")
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDto> update(
-            @PathVariable Long id,
+            @PathVariable String id,
             @Valid @RequestBody UserUpdateAdminDto dto,
             @AuthenticationPrincipal UserPrincipal principal) {
 
@@ -107,7 +107,7 @@ public class UserController {
     @PreAuthorize("hasAuthority('USER_UPDATE_ALL')")
     @PutMapping("/{id}/password")
     public ResponseEntity<Void> updatePassword(
-            @PathVariable Long id,
+            @PathVariable String id,
             @Valid @RequestBody UserPasswordUpdateDto dto) {
 
         userService.updatePassword(
@@ -121,7 +121,7 @@ public class UserController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('USER_DELETE_ALL')")
     public ResponseEntity<Void> deleteUser(
-            @PathVariable Long id,
+            @PathVariable String id,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
 

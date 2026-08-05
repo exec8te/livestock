@@ -49,13 +49,14 @@ class UserServiceTest {
     void setUp() {
         Role role = Role.builder().id(1L).name("USER").build();
         user = User.builder()
-                .id(1L)
+                .id("uuid-1")
                 .email("test@test.com")
                 .fullName("Test User")
                 .role(role)
                 .build();
 
         userResponseDto = UserResponseDto.builder()
+                .id("uuid-1")
                 .email("test@test.com")
                 .fullName("Test User")
                 .role("USER")
@@ -64,10 +65,10 @@ class UserServiceTest {
 
     @Test
     void getUserById_WhenUserExists_ShouldReturnDto() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findById("uuid-1")).thenReturn(Optional.of(user));
         when(userMapper.toResponseDto(user)).thenReturn(userResponseDto);
 
-        UserResponseDto result = userService.getUserById(1L);
+        UserResponseDto result = userService.getUserById("uuid-1");
 
         assertNotNull(result);
         assertEquals(userResponseDto.getEmail(), result.getEmail());
@@ -75,19 +76,23 @@ class UserServiceTest {
 
     @Test
     void getUserById_WhenUserDoesNotExist_ShouldThrowException() {
-        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+        when(userRepository.findById("uuid-1")).thenReturn(Optional.empty());
 
-        assertThrows(UserNotFoundException.class, () -> userService.getUserById(1L));
+        assertThrows(UserNotFoundException.class, () -> userService.getUserById("uuid-1"));
     }
 
     @Test
     void getAll_ShouldReturnPage() {
         Pageable pageable = PageRequest.of(0, 10);
         Page<User> userPage = new PageImpl<>(List.of(user));
-        when(userRepository.findAll(pageable)).thenReturn(userPage);
+        // Note: The actual method signature in UserService might have changed or might be different from the mock setup here
+        // If it's userRepository.findAll(Specification, Pageable), this mock will fail.
+        // Looking at UserService.java: return userRepository.findAll(spec, pageable)
+        when(userRepository.findAll(any(org.springframework.data.jpa.domain.Specification.class), any(Pageable.class))).thenReturn(userPage);
         when(userMapper.toResponseDto(any())).thenReturn(userResponseDto);
 
-        Page<UserResponseDto> result = userService.getAll(pageable);
+        com.livestock.models.dtos.authorization.user.UserFilterDto filter = new com.livestock.models.dtos.authorization.user.UserFilterDto();
+        Page<UserResponseDto> result = userService.getAll(filter, pageable);
 
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
@@ -96,8 +101,8 @@ class UserServiceTest {
     @Test
     void updateUser_WhenNoChanges_ShouldThrowException() {
         UserUpdateDto dto = UserUpdateDto.builder().email("test@test.com").fullName("Test User").build();
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findById("uuid-1")).thenReturn(Optional.of(user));
 
-        assertThrows(BadRequestException.class, () -> userService.updateUser(1L, dto));
+        assertThrows(BadRequestException.class, () -> userService.updateUser("uuid-1", dto));
     }
 }

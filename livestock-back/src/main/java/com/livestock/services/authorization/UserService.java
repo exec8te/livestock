@@ -37,7 +37,7 @@ public class UserService {
     private final RoleService roleService;
 
 
-    public UserResponseDto getUserById(Long userId) {
+    public UserResponseDto getUserById(String userId) {
 
         User user = findEntityById(userId);
 
@@ -108,7 +108,7 @@ public class UserService {
 
     @Transactional
     public UserResponseDto updateUser(
-            Long userId,
+            String userId,
             UserUpdateDto dto
     ) {
 
@@ -151,7 +151,7 @@ public class UserService {
 
     @Transactional
     public void updatePassword(
-            Long userId,
+            String userId,
             UserPasswordUpdateDto dto
     ) {
 
@@ -199,7 +199,7 @@ public class UserService {
 
     @Transactional
     public void deleteUser(
-            Long userId,
+            String userId,
             UserPrincipal principal
     ) {
 
@@ -284,7 +284,7 @@ public class UserService {
 
     @Transactional
     public UserResponseDto updateUserByAdmin(
-            Long userId,
+            String userId,
             UserUpdateAdminDto dto,
             UserPrincipal principal
     ) {
@@ -330,7 +330,7 @@ public class UserService {
     }
 
 
-    protected User findEntityById(Long id) {
+    protected User findEntityById(String id) {
 
         return userRepository.findById(id)
                 .orElseThrow(

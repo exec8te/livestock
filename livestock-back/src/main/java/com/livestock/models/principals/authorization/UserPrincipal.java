@@ -15,7 +15,7 @@ import java.util.Collection;
  */
 public class UserPrincipal implements UserDetails {
 
-    private final Long id;
+    private final String id;
     private final String email;
     private final String passwordHash;
     private final Role role;
@@ -41,7 +41,7 @@ public class UserPrincipal implements UserDetails {
         return authorities;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

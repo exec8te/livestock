@@ -15,7 +15,7 @@ import java.util.Optional;
 
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
+public interface UserRepository extends JpaRepository<User, String>, JpaSpecificationExecutor<User> {
 
     boolean existsByEmail(String email);
 
@@ -38,7 +38,7 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
                 SET u.disabled = true 
                 WHERE u.id = :id
             """)
-    void softDelete(Long id);
+    void softDelete(String id);
 
     @Modifying
     @Query("""
