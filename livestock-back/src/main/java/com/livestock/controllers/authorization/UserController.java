@@ -1,10 +1,7 @@
 package com.livestock.controllers.authorization;
 
 import com.livestock.models.dtos.authorization.login.RegisterRequestDto;
-import com.livestock.models.dtos.authorization.user.UserPasswordUpdateDto;
-import com.livestock.models.dtos.authorization.user.UserResponseDto;
-import com.livestock.models.dtos.authorization.user.UserUpdateAdminDto;
-import com.livestock.models.dtos.authorization.user.UserUpdateDto;
+import com.livestock.models.dtos.authorization.user.*;
 import com.livestock.models.principals.authorization.UserPrincipal;
 import com.livestock.services.authorization.UserService;
 import jakarta.validation.Valid;
@@ -29,13 +26,11 @@ public class UserController {
     @PreAuthorize("hasAuthority('USER_READ_ALL')")
     @GetMapping
     public Page<UserResponseDto> getAll(
-            @PageableDefault(
-                    size = 20,
-                    sort = "createdAt",
-                    direction = Sort.Direction.DESC
-            ) Pageable pageable) {
+            @ModelAttribute UserFilterDto filter,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable) {
 
-        return userService.getAll(pageable);
+        return userService.getAll(filter, pageable);
     }
 
     @PreAuthorize("hasAuthority('USER_CREATE')")

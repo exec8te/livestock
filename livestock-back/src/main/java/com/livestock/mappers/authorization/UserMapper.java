@@ -12,6 +12,7 @@ public interface UserMapper {
 
 
     @Mapping(target = "role", source = "role.name")
+    @Mapping(target = "lastLoginAt", ignore = true)
     UserResponseDto toResponseDto(User user);
 
 

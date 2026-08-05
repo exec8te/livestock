@@ -37,6 +37,11 @@ const routes: RouteRecordRaw[] = [
         component: UserDetailView,
     },
     {
+        path: "/users/new",
+        name: "user-new",
+        component: RegisterView,
+    },
+    {
         path: "/profil",
         name: "profil",
         component: UserDetailView,

@@ -78,9 +78,12 @@
     --color-text-quaternary: rgb(225 241 251);
 
     --color-background-link-primary: rgb(218 177 243 / 0.68);
+    --color-background-row-selected: rgb(210 232 255 / 0.25);
     --font-primary: 'Poppins', sans-serif;
 
     --color-gradiant-primary: linear-gradient(90deg, rgb(178 83 255), rgb(184 62 255));
+
+    --color-background-input-disabled: #80808030;
 
     /* Success */
     --color-success-primary: #22c55e;
@@ -104,6 +107,7 @@
 
     --color-border-primary: #a5a5a5;
     --color-shadow: rgba(0, 0, 0, 0.08);
+
 }
 
 body {

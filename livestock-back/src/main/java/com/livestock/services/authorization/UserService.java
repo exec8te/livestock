@@ -10,16 +10,20 @@ import com.livestock.models.entities.authorization.Role;
 import com.livestock.models.entities.authorization.User;
 import com.livestock.models.principals.authorization.UserPrincipal;
 import com.livestock.repositories.authorization.UserRepository;
+import com.livestock.specifications.authorization.UserSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.Set;
 
 
 @Service
@@ -41,10 +45,25 @@ public class UserService {
     }
 
 
-    public Page<UserResponseDto> getAll(Pageable pageable) {
+    public Page<UserResponseDto> getAll(UserFilterDto filter, Pageable pageable) {
 
-        return userRepository.findAll(pageable)
+        validateSort(pageable.getSort());
+
+        Specification<User> spec = UserSpecification.withFilters(filter);
+
+        return userRepository.findAll(spec, pageable)
                 .map(userMapper::toResponseDto);
+    }
+
+    private static final Set<String> ALLOWED_SORT_FIELDS =
+            Set.of("fullName", "email", "createdAt", "updatedAt", "lastLoginAt");
+
+    private void validateSort(Sort sort) {
+        sort.forEach(order -> {
+            if (!ALLOWED_SORT_FIELDS.contains(order.getProperty())) {
+                throw new BadRequestException("Tri invalide sur le champ : " + order.getProperty());
+            }
+        });
     }
 
 

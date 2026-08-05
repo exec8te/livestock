@@ -1,15 +1,15 @@
-import api from "@/utils/api";
+import axios from "@/plugins/axios";
 import type {LoginDto} from "@/dto/auth/LoginDto.ts";
 import type {RegisterDto} from "@/dto/auth/RegisterDto.ts";
 
 export function login(data: LoginDto) {
-    return api.post("/auth/login", data);
+    return axios.post("/auth/login", data);
 }
 
 export function register(data: RegisterDto) {
-    return api.post("/auth/register", data);
+    return axios.post("/auth/register", data);
 }
 
 export function logout() {
-    return api.post("/auth/logout");
+    return axios.post("/auth/logout");
 }
