@@ -3,6 +3,7 @@ package com.livestock.services.authorization;
 import com.livestock.exceptions.BadRequestException;
 import com.livestock.exceptions.authorization.UserNotFoundException;
 import com.livestock.mappers.authorization.UserMapper;
+import com.livestock.models.dtos.authorization.user.UserCreateDto;
 import com.livestock.models.dtos.authorization.user.UserResponseDto;
 import com.livestock.models.dtos.authorization.user.UserUpdateDto;
 import com.livestock.models.entities.authorization.Role;
@@ -106,5 +107,81 @@ class UserServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         assertThrows(BadRequestException.class, () -> userService.updateUser(userId, dto));
+    }
+    @Test
+    void createUser_ShouldSaveUserWithDisabledStatus() {
+        UserCreateDto dto = UserCreateDto.builder()
+                .fullName("New User")
+                .email("new@test.com")
+                .password("Password123!")
+                .disabled(true)
+                .build();
+
+        User mappedUser = new User();
+        mappedUser.setFullName(dto.getFullName());
+        mappedUser.setEmail(dto.getEmail());
+
+        when(userRepository.existsByEmail(dto.getEmail())).thenReturn(false);
+        when(userMapper.toCreateEntity(dto)).thenReturn(mappedUser);
+        when(passwordEncoder.encode(dto.getPassword())).thenReturn("encodedPassword");
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userMapper.toResponseDto(any(User.class))).thenReturn(UserResponseDto.builder().email(dto.getEmail()).build());
+
+        userService.createUser(dto, null);
+
+        assertTrue(mappedUser.getDisabled(), "User should be disabled as per DTO");
+        assertEquals("encodedPassword", mappedUser.getPasswordHash());
+    }
+
+    @Test
+    void createUser_WhenDisabledIsNull_ShouldDefaultToFalse() {
+        UserCreateDto dto = UserCreateDto.builder()
+                .fullName("New User")
+                .email("new2@test.com")
+                .password("Password123!")
+                .disabled(null)
+                .build();
+
+        User mappedUser = new User();
+        mappedUser.setFullName(dto.getFullName());
+        mappedUser.setEmail(dto.getEmail());
+
+        when(userRepository.existsByEmail(dto.getEmail())).thenReturn(false);
+        when(userMapper.toCreateEntity(dto)).thenReturn(mappedUser);
+        when(passwordEncoder.encode(dto.getPassword())).thenReturn("encodedPassword");
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userMapper.toResponseDto(any(User.class))).thenReturn(UserResponseDto.builder().email(dto.getEmail()).build());
+
+        userService.createUser(dto, null);
+
+        assertNotNull(mappedUser.getDisabled());
+        assertFalse(mappedUser.getDisabled(), "User should default to not disabled");
+    }
+
+    @Test
+    void updateUserByAdmin_WhenDisabledIsChanged_ShouldUpdateUser() {
+        com.livestock.models.dtos.authorization.user.UserUpdateAdminDto dto =
+                com.livestock.models.dtos.authorization.user.UserUpdateAdminDto.builder()
+                        .email("test@test.com")
+                        .fullName("Test User")
+                        .roleId(1L)
+                        .disabled(true)
+                        .build();
+
+        user.setDisabled(false);
+        Role role = Role.builder().id(1L).name("USER").permissions(java.util.Set.of()).build();
+        user.setRole(role);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(roleService.findEntityById(1L)).thenReturn(role);
+        when(userMapper.toResponseDto(user)).thenReturn(userResponseDto);
+
+        com.livestock.models.principals.authorization.UserPrincipal principal =
+                new com.livestock.models.principals.authorization.UserPrincipal(user);
+
+        UserResponseDto result = userService.updateUserByAdmin(userId, dto, principal);
+
+        org.mockito.Mockito.verify(userMapper).updateByAdminEntity(dto, user);
+        assertNotNull(result);
     }
 }

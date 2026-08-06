@@ -1,6 +1,7 @@
 package com.livestock.mappers.authorization;
 
 import com.livestock.models.dtos.authorization.login.RegisterRequestDto;
+import com.livestock.models.dtos.authorization.user.UserCreateDto;
 import com.livestock.models.dtos.authorization.user.UserResponseDto;
 import com.livestock.models.dtos.authorization.user.UserUpdateAdminDto;
 import com.livestock.models.dtos.authorization.user.UserUpdateDto;
@@ -24,6 +25,14 @@ public interface UserMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "disabled", ignore = true)
     User toCreateEntity(RegisterRequestDto dto);
+
+    @Mapping(target = "passwordHash", source = "password")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "lastLoginAt", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    User toCreateEntity(UserCreateDto dto);
 
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

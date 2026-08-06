@@ -70,7 +70,7 @@ public class UserService {
 
     @Transactional
     public UserResponseDto createUser(
-            RegisterRequestDto dto,
+            UserCreateDto dto,
             UserPrincipal principal
     ) {
 
@@ -84,13 +84,24 @@ public class UserService {
             throw new EmailAlreadyExistsException(dto.getEmail());
         }
 
-
         User user = userMapper.toCreateEntity(dto);
+        user.setDisabled(dto.getDisabled() != null ? dto.getDisabled() : false);
 
         user.setPasswordHash(
                 passwordEncoder.encode(dto.getPassword())
         );
 
+        if (dto.getRoleId() == null) {
+
+            user.setRole(
+                    roleService.getDefaultRole()
+            );
+        }else {
+
+            user.setRole(
+                    roleService.getRoleEntityById(dto.getRoleId())
+            );
+        }
 
         User savedUser = userRepository.save(user);
 
@@ -372,6 +383,10 @@ public class UserService {
                 || !Objects.equals(
                 user.getRole().getId(),
                 dto.getRoleId()
+        )
+                || !Objects.equals(
+                user.getDisabled(),
+                dto.getDisabled()
         );
     }
 }

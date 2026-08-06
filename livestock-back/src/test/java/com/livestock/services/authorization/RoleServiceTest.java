@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -68,7 +69,7 @@ class RoleServiceTest {
                 .build();
 
         User user = User.builder()
-                .id(1L)
+                .id(UUID.randomUUID())
                 .email("admin@test.com")
                 .role(role)
                 .build();

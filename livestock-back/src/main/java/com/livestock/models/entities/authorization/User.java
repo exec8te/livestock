@@ -5,7 +5,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -20,11 +21,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 @Table(name = "users")
-@SQLRestriction("disabled = false")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "id_user", length = 36)
     private UUID id;
 
@@ -57,6 +58,7 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Builder.Default
     @Column(name = "disabled", nullable = false)
     private Boolean disabled = false;
 

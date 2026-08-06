@@ -38,7 +38,7 @@ public class UserController {
     @PreAuthorize("hasAuthority('USER_CREATE')")
     @PostMapping
     public ResponseEntity<UserResponseDto> create(
-            @Valid @RequestBody RegisterRequestDto dto,
+            @Valid @RequestBody UserCreateDto dto,
             @AuthenticationPrincipal UserPrincipal principal) {
 
         UserResponseDto user = userService.createUser(dto, principal);

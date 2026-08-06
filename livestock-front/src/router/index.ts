@@ -6,6 +6,8 @@ import {useAuthStore} from "@/stores/auth";
 import UserDetailView from "@/views/UserDetailView.vue";
 import LoginView from "@/views/auth/LoginView.vue";
 import RegisterView from "@/views/auth/RegisterView.vue";
+import UserCreateView from "@/views/user/UserCreateView.vue";
+import UserUpdateView from "@/views/user/UserUpdateView.vue";
 
 const routes: RouteRecordRaw[] = [
     {
@@ -34,12 +36,12 @@ const routes: RouteRecordRaw[] = [
     {
         path: "/users/:id",
         name: "user-edit",
-        component: UserDetailView,
+        component: UserUpdateView,
     },
     {
         path: "/users/new",
         name: "user-new",
-        component: RegisterView,
+        component: UserCreateView,
     },
     {
         path: "/profil",

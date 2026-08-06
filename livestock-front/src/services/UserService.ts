@@ -5,14 +5,11 @@ import type {UserUpdateAdminDto} from "@/dto/user/UserUpdateAdminDto.ts";
 import type {UserUpdateDto} from "@/dto/user/UserUpdateDto.ts";
 import type {PageResponseDto} from "@/dto/page/PageResponseDto.ts";
 import type {UserFilterDto} from "@/dto/user/UserFilterDto.ts";
+import type {UserCreateDto} from "@/dto/user/UserCreateDto.ts";
+import type {PageParamsDto} from "@/dto/page/PageParamsDto.ts";
 
-export interface PageParams {
-    page?: number;
-    size?: number;
-    sort?: string[]; // ex: ["createdAt,desc", "fullName,asc"]
-}
 
-export function getAll(filter: UserFilterDto = {}, page: PageParams = {}) {
+export function getAll(filter: UserFilterDto = {}, page: PageParamsDto = {}) {
     return axios.get<PageResponseDto<UserDto>>("/users", {
         params: {...filter, ...page},
     });
@@ -40,4 +37,8 @@ export function updateUserAdmin(id: string, user: UserUpdateAdminDto) {
 
 export function deleteUserById(id: string) {
     return axios.delete(`/users/${id}`);
+}
+
+export function createUser(user: UserCreateDto) {
+    return axios.post("/users", user);
 }
