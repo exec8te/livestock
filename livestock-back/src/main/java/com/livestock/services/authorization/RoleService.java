@@ -337,4 +337,9 @@ public class RoleService {
                 isDefault
         );
     }
+
+    public Role getRoleEntityById(Long id) {
+        return roleRepository.findById(id)
+                .orElseThrow(() -> new RoleNotFoundException(id));
+    }
 }

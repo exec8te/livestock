@@ -34,4 +34,6 @@ public interface RoleMapper {
             @MappingTarget Role role
     );
 
+    Role toEntity(RoleResponseDto dto);
+
 }

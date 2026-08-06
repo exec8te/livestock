@@ -6,7 +6,7 @@ import type {UserDto} from "@/dto/user/UserDto";
 
 const route = useRoute();
 
-const id = Number(route.params.id);
+const id = route.params.id as string;
 
 const user = ref<UserDto | null>(null);
 

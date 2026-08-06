@@ -120,7 +120,7 @@ function goToPage(newPage: number) {
   page.value = newPage;
 }
 
-function deleteUser(id: number) {
+function deleteUser(id: string) {
   try {
     userService.deleteUserById(
         id
@@ -329,60 +329,6 @@ watch([page, size, sortField, sortDirection], () => {
 </template>
 
 <style scoped>
-.main {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  justify-content: flex-start;
-  background: var(--color-background-primary);
-}
-
-.main-header {
-  width: 100%;
-  border-bottom: 1px solid var(--color-border-primary);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 5rem 1rem 2rem;
-}
-
-.main-header__title {
-  color: var(--color-text-primary);
-  font-size: 1.5rem;
-  font-weight: 500;
-}
-
-.header__actions {
-  display: flex;
-  gap: .5rem;
-  align-items: center;
-}
-
-.header-action {
-  font-size: 1rem;
-  font-weight: 500;
-  padding: .4rem .6rem;
-  background: var(--color-background-primary);
-  border-radius: .4rem;
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-text-tertiary);
-  display: flex;
-  align-items: center;
-  transition: .15s;
-}
-
-.header-action i {
-  font-size: 1.1rem;
-}
-
-.header-action:hover {
-  background: var(--color-text-tertiary);
-  color: var(--color-background-primary);
-  cursor: pointer;
-}
-
 .table {
   overflow: hidden;
   width: 100%;

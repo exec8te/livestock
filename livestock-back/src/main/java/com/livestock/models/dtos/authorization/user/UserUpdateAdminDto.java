@@ -29,4 +29,7 @@ public class UserUpdateAdminDto {
 
     @NotNull(message = "Role id is required")
     private Long roleId;
+
+    @NotNull(message = "Disabled id is required")
+    private Boolean disabled;
 }
