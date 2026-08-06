@@ -27,7 +27,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -174,7 +174,24 @@ class UserServiceTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(roleService.findEntityById(1L)).thenReturn(role);
-        when(userMapper.toResponseDto(user)).thenReturn(userResponseDto);
+        when(userMapper.toResponseDto(user)).thenAnswer(invocation -> {
+            User u = invocation.getArgument(0);
+            return UserResponseDto.builder()
+                    .id(u.getId())
+                    .email(u.getEmail())
+                    .fullName(u.getFullName())
+                    .disabled(u.getDisabled())
+                    .build();
+        });
+        
+        doAnswer(invocation -> {
+            com.livestock.models.dtos.authorization.user.UserUpdateAdminDto d = invocation.getArgument(0);
+            User u = invocation.getArgument(1);
+            u.setDisabled(d.getDisabled());
+            u.setEmail(d.getEmail());
+            u.setFullName(d.getFullName());
+            return null;
+        }).when(userMapper).updateByAdminEntity(any(), any());
 
         com.livestock.models.principals.authorization.UserPrincipal principal =
                 new com.livestock.models.principals.authorization.UserPrincipal(user);
@@ -183,5 +200,7 @@ class UserServiceTest {
 
         org.mockito.Mockito.verify(userMapper).updateByAdminEntity(dto, user);
         assertNotNull(result);
+        assertTrue(result.getDisabled(), "User should be disabled in response");
+        assertTrue(user.getDisabled(), "User entity should be disabled");
     }
 }

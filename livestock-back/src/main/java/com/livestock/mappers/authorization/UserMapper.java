@@ -32,6 +32,7 @@ public interface UserMapper {
     @Mapping(target = "lastLoginAt", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "disabled", source = "disabled")
     User toCreateEntity(UserCreateDto dto);
 
 
@@ -56,6 +57,7 @@ public interface UserMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "email", source = "email")
+    @Mapping(target = "disabled", source = "disabled")
     void updateByAdminEntity(
             UserUpdateAdminDto dto,
             @MappingTarget User user
