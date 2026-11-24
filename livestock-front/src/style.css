@@ -79,6 +79,7 @@
 
     --color-background-link-primary: rgb(218 177 243 / 0.68);
     --color-background-row-selected: rgb(210 232 255 / 0.25);
+    --color-background-row-disabled: rgb(255 244 244);
     --font-primary: 'Poppins', sans-serif;
 
     --color-gradiant-primary: linear-gradient(90deg, rgb(178 83 255), rgb(184 62 255));

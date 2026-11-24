@@ -41,8 +41,8 @@ const groups = ref([
 const accountOpen = ref(false);
 
 const accountLinks = [
-  {to: "/", label: "Profil", icon: "fa-solid fa-user"},
-  {to: "/", label: "Accessibility", icon: "fa-solid fa-universal-access"},
+  {to: "/profil", label: "Profil", icon: "fa-solid fa-user"},
+  {to: "/accessibility", label: "Accessibility", icon: "fa-solid fa-universal-access"},
   {to: "/users", label: "Logout", icon: "fa-solid fa-right-from-bracket"},
 ];
 

@@ -3,7 +3,7 @@ import {createRouter, createWebHistory, type RouteRecordRaw} from "vue-router";
 import UserListView from "@/views/user/UserListView.vue";
 
 import {useAuthStore} from "@/stores/auth";
-import UserDetailView from "@/views/UserDetailView.vue";
+import UserDetailView from "@/views/user/UserDetailView.vue";
 import LoginView from "@/views/auth/LoginView.vue";
 import RegisterView from "@/views/auth/RegisterView.vue";
 import UserCreateView from "@/views/user/UserCreateView.vue";

@@ -46,11 +46,13 @@ public class UserService {
     }
 
 
-    public Page<UserResponseDto> getAll(UserFilterDto filter, Pageable pageable) {
+    public Page<UserResponseDto> getAll(UserFilterDto filter, Pageable pageable, UserPrincipal principal) {
 
         validateSort(pageable.getSort());
 
-        Specification<User> spec = UserSpecification.withFilters(filter);
+        Specification<User> spec = Specification
+                .where(UserSpecification.withFilters(filter))
+                .and(UserSpecification.excludingId(principal.getId()));
 
         return userRepository.findAll(spec, pageable)
                 .map(userMapper::toResponseDto);

@@ -34,6 +34,10 @@ export const useAuthStore = defineStore("auth", {
             }
         },
 
+        setUser(user: UserDto) {
+            this.user = user;
+        },
+
         async login(login: LoginDto) {
             try {
                 await authService.login(login);

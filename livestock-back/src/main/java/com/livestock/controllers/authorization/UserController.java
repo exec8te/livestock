@@ -30,9 +30,10 @@ public class UserController {
     public Page<UserResponseDto> getAll(
             @ModelAttribute UserFilterDto filter,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
-            Pageable pageable) {
+            Pageable pageable,
+            @AuthenticationPrincipal UserPrincipal principal) {
 
-        return userService.getAll(filter, pageable);
+        return userService.getAll(filter, pageable, principal);
     }
 
     @PreAuthorize("hasAuthority('USER_CREATE')")

@@ -65,6 +65,17 @@ watch([someSelected, users], () => {
   }
 }, {immediate: true});
 
+// Statut du compte : disabled === true -> rouge, false -> vert, undefined/null -> bleu (par défaut)
+function statusLabel(disabled: boolean | null | undefined) {
+  if (disabled === null || disabled === undefined) return "Unknown";
+  return disabled ? "Disabled" : "Enabled";
+}
+
+function statusClass(disabled: boolean | null | undefined) {
+  if (disabled === null || disabled === undefined) return "status-badge--default";
+  return disabled ? "status-badge--disabled" : "status-badge--enabled";
+}
+
 async function fetchUsers() {
   loading.value = true;
   try {
@@ -217,6 +228,13 @@ watch([page, size, sortField, sortDirection], () => {
           </th>
           <th class="table__cell table__cell--head">
             <div class="table__head-content">
+              <button class="btn--sort" @click="toggleSort('disabled')">
+                Status <i :class="`fa-solid ${sortIcon('disabled')}`"></i>
+              </button>
+            </div>
+          </th>
+          <th class="table__cell table__cell--head">
+            <div class="table__head-content">
               <button class="btn--sort" @click="toggleSort('fullName')">
                 Full name <i :class="`fa-solid ${sortIcon('fullName')}`"></i>
               </button>
@@ -258,7 +276,7 @@ watch([page, size, sortField, sortDirection], () => {
           <tr
               v-for="user in users"
               :key="user.id"
-              :class="{ 'table__row--body-selected': isSelected(user.id) }"
+              :class="{ 'table__row--body-selected': isSelected(user.id)}"
               class="table__row table__row--body"
           >
             <td class="table__cell table__cell--checkbox">
@@ -268,6 +286,13 @@ watch([page, size, sortField, sortDirection], () => {
                   type="checkbox"
                   @click="toggleSelectOne(user.id)"
               />
+            </td>
+
+            <td class="table__cell table__cell--status">
+              <span :class="statusClass(user.disabled)" class="status-badge">
+                <span class="status-badge__dot"></span>
+                {{ statusLabel(user.disabled) }}
+              </span>
             </td>
 
             <td class="table__cell table__cell--person">
@@ -446,6 +471,10 @@ watch([page, size, sortField, sortDirection], () => {
   padding: 0;
 }
 
+.table__cell.table__cell--status {
+  text-align: center;
+}
+
 .table__row--body {
   transition: background-color 0.15s ease;
 }
@@ -455,8 +484,59 @@ watch([page, size, sortField, sortDirection], () => {
   background: var(--color-background-row-selected);
 }
 
+.table__row--body-disabled {
+  background: var(--color-background-row-disabled);
+}
+
 .table__row--body:last-child {
   border-bottom: none;
+}
+
+/* Badge de statut : rouge = désactivé, vert = activé, bleu = statut inconnu/par défaut */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.status-badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-badge--enabled {
+  background: var(--color-success-background);
+  color: var(--color-success-primary);
+}
+
+.status-badge--enabled .status-badge__dot {
+  background: var(--color-success-primary);
+}
+
+.status-badge--disabled {
+  background: var(--color-error-background);
+  color: var(--color-error-primary);
+}
+
+.status-badge--disabled .status-badge__dot {
+  background: var(--color-error-primary);
+}
+
+.status-badge--default {
+  background: var(--color-info-background);
+  color: var(--color-info-primary);
+}
+
+.status-badge--default .status-badge__dot {
+  background: var(--color-info-primary);
 }
 
 .table__cell {

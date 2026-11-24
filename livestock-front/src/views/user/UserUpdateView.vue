@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {computed, onMounted, ref} from "vue";
+import {onMounted, ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import axios from "axios";
 import type {UserUpdateAdminDto} from "@/dto/user/UserUpdateAdminDto.ts";
@@ -17,6 +17,8 @@ const formData = ref({
   fullName: "",
   disabled: false,
   roleId: null as number | null,
+  createdAt: null as Date | null,
+  updatedAt: null as Date | null
 });
 
 type FormErrors = {
@@ -38,7 +40,7 @@ const search = ref("");
 // On le stocke ici en attendant de pouvoir le croiser avec la liste des rôles.
 const currentRoleName = ref<string | null>(null);
 
-const pageTitle = computed(() => formData.value.fullName ? `Edit ${formData.value.fullName}` : "Edit user");
+const pageTitle = "Edit user";
 
 async function fetchRoles() {
   isLoadingRoles.value = true;
@@ -67,6 +69,8 @@ async function fetchUser() {
     formData.value.email = user.email;
     formData.value.fullName = user.fullName;
     formData.value.disabled = user.disabled;
+    formData.value.createdAt = new Date(user.createdAt);
+    formData.value.updatedAt = user.updatedAt ? new Date(user.updatedAt) : null;
     // `user.role` est l'intitulé du rôle (ex: "ADMIN"), pas un id.
     currentRoleName.value = user.role ?? null;
   } catch (err: unknown) {
@@ -177,6 +181,18 @@ function cancel() {
     <form v-else id="edit-form" class="edit-form" @submit.prevent="submitForm">
       <section class="edit-form__section">
         <h3 class="edit-form__section-title">General informations</h3>
+
+        <div class="edit-form__section-informations">
+          <p v-if="formData.createdAt" class="information__date">
+            <i class="fa-regular fa-calendar"></i>
+            Created <span class="information__date-value">{{ formData.createdAt.toLocaleString() }}</span>
+          </p>
+          <p v-if="formData.updatedAt" class="information__date">
+            <i class="fa-regular fa-clock"></i>
+            Last updated <span class="information__date-value">{{ formData.updatedAt.toLocaleString() ?? "--" }}</span>
+          </p>
+        </div>
+
         <div class="edit-form__grid">
           <div class="edit-form__group">
             <label class="edit-form__label" for="fullName">Full name</label>
@@ -274,33 +290,44 @@ function cancel() {
   padding: 40px 0;
 }
 
-.edit-form__section + .edit-form__section {
-  margin-top: 32px;
-  padding-top: 28px;
-  border-top: 1px solid var(--color-background-input-disabled);
+.edit-form__section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
-.edit-form__section-header {
+.edit-form__section-informations {
   display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.information__date {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18px;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: var(--color-background-input-disabled);
+  color: var(--color-text-tertiary);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.information__date i {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.information__date-value {
+  color: var(--color-text-primary);
+  font-weight: 600;
 }
 
 .edit-form__section-title {
   font-size: 1.05rem;
   font-weight: 600;
   color: var(--color-text-primary);
-}
-
-.edit-form__toggle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.85rem;
-  color: var(--color-text-secondary);
-  font-weight: 600;
-  cursor: pointer;
 }
 
 .edit-form__toggle input {
