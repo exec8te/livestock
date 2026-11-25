@@ -217,6 +217,7 @@ function cancel() {
                 id="password"
                 v-model="formData.password"
                 :class="{ 'register-form__input--error': errors.password }"
+                autocomplete="new-password"
                 class="register-form__input"
                 placeholder="************"
                 type="password"
